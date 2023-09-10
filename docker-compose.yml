@@ -1,0 +1,26 @@
+version: '3.8'
+
+services:
+  poetry-project:
+    container_name: tix2go
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./src:/code/src
+    depends_on:
+      - db
+
+  db:
+    image: mysql:8.0
+    container_name: tix2go-db
+    environment:
+      MYSQL_ROOT_PASSWORD: tix2go
+      MYSQL_DATABASE: tix2go
+
+    ports:
+      - "3306:3306"
+    volumes:
+      - todos:/var/lib/mysql
