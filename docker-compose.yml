@@ -5,6 +5,7 @@ services:
     container_name: tix2go
     build:
       context: .
+      dockerfile: Docker/Dockerfile
 
     ports:
       - "8000:8000"

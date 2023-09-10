@@ -38,7 +38,7 @@ RUN curl -sSL https://install.python-poetry.org | POETRY_HOME=${POETRY_HOME} pyt
 # We copy our Python requirements here to cache them
 # and install only runtime deps using poetry
 WORKDIR $PYSETUP_PATH
-COPY ./poetry.lock ./pyproject.toml ./
+COPY ../poetry.lock ./pyproject.toml ./
 RUN poetry install --only main  # respects
 
 # 'development' stage installs all dev deps and can be used to develop code.
@@ -59,7 +59,7 @@ WORKDIR $PYSETUP_PATH
 RUN poetry install
 
 WORKDIR /app
-COPY . .
+COPY .. .
 
 EXPOSE 8000
 ENTRYPOINT /docker-entrypoint.sh $0 $@
@@ -85,7 +85,7 @@ FROM python-base AS production
 ENV FASTAPI_ENV=production
 
 COPY --from=builder-base $VENV_PATH $VENV_PATH
-COPY gunicorn_conf.py /gunicorn_conf.py
+COPY ../gunicorn_conf.py /gunicorn_conf.py
 
 COPY docker-entrypoint.sh /docker-entrypoint.sh
 RUN chmod +x /docker-entrypoint.sh
@@ -94,7 +94,7 @@ RUN chmod +x /docker-entrypoint.sh
 RUN groupadd -g 1500 poetry && \
     useradd -m -u 1500 -g poetry poetry
 
-COPY --chown=poetry:poetry ./src /src
+COPY --chown=poetry:poetry ../src /src
 USER poetry
 WORKDIR /src
 
