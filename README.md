@@ -1,7 +1,5 @@
 # Poetry managed Python FastAPI application with Docker multi-stage builds
 
-### This repo serves as a minimal reference on setting up docker multi-stage builds with poetry
-
 ## About The Project
 
 This repo serves as a minimal reference on setting up docker multi-stage builds with poetry.
@@ -16,7 +14,7 @@ This is an updated and modified fork of [poetry-fastapi-docker](https://github.c
 - [Python >= 3.11](https://www.python.org/downloads/release/python-3115/)
 - [Poetry](https://github.com/python-poetry/poetry)
 
- **NOTE** - Run all commands from the project root
+  **NOTE** - Run all commands from the project root
 
 ## Local development
 
@@ -102,7 +100,7 @@ You can build and run the container with Docker Compose
 docker compose up
 ```
 
-Or, run in *detached* mode if you prefer.
+Or, run in _detached_ mode if you prefer.
 
 > **NOTE** - If you use an older version of Docker Compose,
 > you may need to uncomment the version in the docker-compose,yml file!
