@@ -4,8 +4,8 @@ services:
   poetry-project:
     container_name: tix2go
     build:
-      context: ./docker  # 도커파일 디렉토리
-      dockerfile: Dockerfile.local  # 도커파일명
+      context: .
+      dockerfile: ./docker/Dockerfile.local
     ports:
       - "8000:8000"
     volumes:
