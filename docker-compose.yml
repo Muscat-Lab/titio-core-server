@@ -5,11 +5,16 @@ services:
     container_name: tix2go
     build:
       context: .
-      dockerfile: Docker/Dockerfile
-
+      dockerfile: ./docker/Dockerfile.local
     ports:
       - "8000:8000"
-
+    volumes:
+      - .:/var/www/html
+    command:
+      - /bin/bash
+      - -c
+      - poetry install
+        && poetry run uvicorn src.main:app --reload --host=0.0.0.0 --port=8000
     depends_on:
       - db
 
@@ -19,6 +24,5 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: tix2go
       MYSQL_DATABASE: tix2go
-
     ports:
       - "3306:3306"
