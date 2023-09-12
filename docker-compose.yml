@@ -5,7 +5,7 @@ services:
     container_name: tix2go
     build:
       context: .
-      dockerfile: ./docker/Dockerfile.local
+      dockerfile: docker/Dockerfile.local
     ports:
       - "8000:8000"
     volumes:

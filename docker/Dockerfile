@@ -1,6 +1,6 @@
 
 # Dockerfile
-# Uses multi-stage builds requiring Docker 17.05 or higher
+# Uses multi-stage builds requiring docker 17.05 or higher
 # See https://docs.docker.com/develop/develop-images/multistage-build/
 
 # Creating a python base with shared environment variables
