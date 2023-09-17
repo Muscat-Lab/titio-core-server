@@ -22,5 +22,12 @@ class User(Base):
         index=True,
     )
     password = Column(String(256), nullable=False)
-    created_at = Column(DateTime, default=datetime.now(), description="Create Time")
-    updated_at = Column(DateTime, default=datetime.now(), description="Update Time")
+    created_at = Column(DateTime, default=datetime.now())
+    updated_at = Column(DateTime, default=datetime.now())
+
+    @classmethod
+    def create(cls, email: str, hashed_password: str):
+        return cls(
+            email=email,
+            password=hashed_password,
+        )

@@ -3,7 +3,7 @@ from pydantic import BaseModel, Field, ConfigDict
 
 
 class SignUpRequest(BaseModel):
-    username: str = Field("test", title="Nickname")
+    email: str = Field("test@test.com", title="email")
     password: str = Field(default="test1234", title="password")
 
 

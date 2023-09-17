@@ -24,6 +24,8 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: tix2go
       MYSQL_DATABASE: tix2go
+      MYSQL_USER: tix2go
+      MYSQL_PASSWORD: tix2go
     ports:
       - "3306:3306"
     volumes:
