@@ -17,6 +17,10 @@ python-jose = "^3.3.0"
 passlib = "^1.7.4"
 cryptography = "^41.0.3"
 alembic = "^1.12.0"
+ruff = "^0.0.290"
+mypy = "^1.5.1"
+types-passlib = "^1.7.7.13"
+types-python-jose = "^3.3.4.8"
 
 [tool.poetry.group.dev.dependencies]
 httpx = "^0.24.1"

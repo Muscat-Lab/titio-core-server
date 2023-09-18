@@ -32,6 +32,6 @@ class UserService:
         user: User = User.create(email=email, hashed_password=hashed_password)
 
         # 사용사 생성 및 저장
-        user: User = self.user_repository.save_user(user=user)
+        user = self.user_repository.save_user(user=user)
 
         return UserSchema.model_validate(user)
