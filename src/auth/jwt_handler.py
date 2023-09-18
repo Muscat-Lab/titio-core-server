@@ -1,24 +1,22 @@
 import time
 from datetime import datetime
 
-from core.config import Settings
 from fastapi import HTTPException, status
 from jose import jwt, JWTError
 
-
-settings = Settings()
+from src.config import config
 
 
 def create_access_token(user: str):
     payload = {"user": user, "expires": time.time() + 3600}
 
-    token = jwt.encode(payload, settings.SECRET_KEY, algorithm="HS256")
+    token = jwt.encode(payload, config.SECRET_KEY, algorithm="HS256")
     return token
 
 
 def verify_access_token(token: str):
     try:
-        data = jwt.decode(token, settings.SECRET_KEY, algorithms=["HS256"])
+        data = jwt.decode(token, config.SECRET_KEY, algorithms=["HS256"])
 
         expire = data.get("expires")
 

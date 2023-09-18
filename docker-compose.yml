@@ -1,36 +1,36 @@
 version: "3.8"
 
 services:
-  poetry-project:
-    container_name: tix2go
+  fastapi:
+    container_name: fastapi
     build:
       context: .
       dockerfile: docker/Dockerfile.local
     ports:
       - "8000:8000"
     volumes:
-      - .:/var/www/html
+      - .:/app
     command:
       - /bin/bash
       - -c
       - poetry install
         && poetry run uvicorn src.main:app --reload --host=0.0.0.0 --port=8000
     depends_on:
-      - db
+      - mysql
 
-  db:
+  mysql:
     image: mysql:8.0
-    container_name: tix2go-db
+    container_name: mysql
     environment:
-      MYSQL_ROOT_PASSWORD: tix2go
-      MYSQL_DATABASE: tix2go
-      MYSQL_USER: tix2go
-      MYSQL_PASSWORD: tix2go
+      MYSQL_ROOT_PASSWORD: root1234
+      MYSQL_DATABASE: dev
+      MYSQL_USER: user
+      MYSQL_PASSWORD: user1234
     ports:
       - "3306:3306"
     volumes:
-      - tix2godb:/var/lib/mysql
+      - mysql_data:/var/lib/mysql
 
 volumes:
-  tix2godb:
+  mysql_data:
     external: false

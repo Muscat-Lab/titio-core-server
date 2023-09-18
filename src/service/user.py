@@ -18,6 +18,9 @@ class UserService:
         self.session = session
         self.user_repository = user_repository
 
+    def get_user_list(self) -> list[User]:
+        return self.user_repository.get_user_list()
+
     def sign_up(self, email: str, password: str):
         # 사용자 아이디 중복확인
         # existing_user = self.user_repository.get_user_by_email(email)

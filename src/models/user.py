@@ -1,29 +1,26 @@
-from datetime import datetime
-from sqlalchemy import Integer, Column, String, DateTime
-from sqlalchemy.orm import declarative_base, relationship
+from sqlalchemy import Integer, String
+from sqlalchemy.orm import mapped_column
 
-Base = declarative_base()
+from src.models.base import Base
 
 
 class User(Base):
     __tablename__ = "users"
 
-    id = Column(Integer, primary_key=True, index=True)
-    email = Column(
+    id = mapped_column(Integer, primary_key=True, index=True)
+    email = mapped_column(
         String(256),
         unique=True,
         nullable=False,
         index=True,
     )
-    username = Column(
+    username = mapped_column(
         String(256),
         unique=True,
         nullable=True,
         index=True,
     )
-    password = Column(String(256), nullable=False)
-    created_at = Column(DateTime, default=datetime.now())
-    updated_at = Column(DateTime, default=datetime.now())
+    password = mapped_column(String(256), nullable=False)
 
     @classmethod
     def create(cls, email: str, hashed_password: str):

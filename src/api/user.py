@@ -10,6 +10,13 @@ router = APIRouter(prefix="/users", tags=["user"])
 hash_password = HashPassword()
 
 
+@router.get("/")
+def user_list_handler(
+    user_service: UserService = Depends(),
+):
+    return user_service.get_user_list()
+
+
 @router.post("/sign-up", status_code=201)
 def user_sign_up_handler(
     request: SignUpRequest,

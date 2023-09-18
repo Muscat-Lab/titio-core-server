@@ -5,6 +5,7 @@ from pydantic import BaseModel, Field, ConfigDict
 class SignUpRequest(BaseModel):
     email: str = Field("test@test.com", title="email")
     password: str = Field(default="test1234", title="password")
+    username: str = Field(default="test", title="username")
 
 
 class UserSchema(BaseModel):

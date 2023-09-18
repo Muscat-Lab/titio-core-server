@@ -9,9 +9,17 @@ class UserRepository:
     def __init__(self, session: Session = Depends(get_db)):
         self.session = session
 
+    def get_user_list(self) -> list[User]:
+        return list(
+            (
+                self.session.scalars(
+                    select(User).order_by(User.created_at.desc()).limit(10)
+                )
+            ).all()
+        )
+
     def get_user_by_email(self, email: str) -> User | None:
         return self.session.scalar(select(User).where(User.email == email))
-        # return self.session.query(User).filter(User.email == email).first()
 
     def save_user(self, user: User) -> User:
         self.session.add(instance=user)
