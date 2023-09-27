@@ -1,7 +1,7 @@
 from fastapi import Depends
 
 from src.schema.user import UserSchema
-from src.models.user import User
+from src.models.model import User
 from src.auth.hash_password import HashPassword
 from src.database.connection import get_db
 from src.repositories.user import UserRepository
@@ -29,7 +29,7 @@ class UserService:
 
         # 비밀번호 해싱
         hashed_password = self.hash_password.create_hash(password)
-        user: User = User.create(email=email, hashed_password=hashed_password)
+        user: User = User.create(email=email, password=hashed_password)
 
         # 사용사 생성 및 저장
         user = self.user_repository.save_user(user=user)

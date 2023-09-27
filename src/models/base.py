@@ -8,11 +8,13 @@ class Base(DeclarativeBase):
     __abstract__ = True
 
     created_at = mapped_column(
-        DateTime, nullable=False, default=lambda: datetime.datetime.now(datetime.UTC)
+        DateTime(timezone=True),
+        nullable=False,
+        default=lambda: datetime.datetime.now(datetime.UTC),
     )
 
     updated_at = mapped_column(
-        DateTime,
+        DateTime(timezone=True),
         nullable=False,
         default=lambda: datetime.datetime.now(datetime.UTC),
         onupdate=lambda: datetime.datetime.now(datetime.UTC),

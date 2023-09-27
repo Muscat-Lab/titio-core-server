@@ -2,7 +2,7 @@ from pydantic.v1 import BaseSettings
 
 
 class ConfigTemplate(BaseSettings):
-    DB_URI: str = "mysql+pymysql://user:user1234@mysql:3306/dev"
+    DB_URI: str = "mysql+pymysql://user:user1234@localhost:3306/dev"
 
     SECRET_KEY: str = "secret"
 
