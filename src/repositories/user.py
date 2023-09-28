@@ -1,6 +1,7 @@
 from fastapi import Depends
-from sqlalchemy.orm import Session
 from sqlalchemy import select
+from sqlalchemy.orm import Session
+
 from src.database.connection import get_db
 from src.models.model import User
 
@@ -26,3 +27,6 @@ class UserRepository:
         self.session.commit()  # db save
         self.session.refresh(instance=user)
         return user
+
+    def get_user_by_kakao_id(self, kakao_id: str) -> User | None:
+        return self.session.scalar(select(User).where(User.kakao_id == kakao_id))

@@ -17,6 +17,7 @@ services:
         && poetry run uvicorn src.main:app --reload --host=0.0.0.0 --port=8000
     depends_on:
       - mysql
+    restart: always
 
   mysql:
     image: mysql:8.0
@@ -31,6 +32,17 @@ services:
     volumes:
       - mysql_data:/var/lib/mysql
 
+  redis:
+    image: redis:6.0
+    container_name: redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+
 volumes:
   mysql_data:
     external: false
+  redis_data:
+    external: false
+

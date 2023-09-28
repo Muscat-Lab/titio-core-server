@@ -1,10 +1,10 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, status
+from fastapi.responses import RedirectResponse
 
-
+from src.service.kakao_login import KakaoLoginService
 from src.service.user import UserService
 from src.schema.user import SignUpRequest
 from src.auth.hash_password import HashPassword
-
 
 router = APIRouter(prefix="/users", tags=["user"])
 hash_password = HashPassword()

@@ -5,8 +5,9 @@ from src.config import config
 
 engine = create_engine(config.DB_URI, echo=True)
 
-
-SessionFactory = sessionmaker(autoflush=False, autocommit=False, bind=engine)
+SessionFactory = sessionmaker(
+    autoflush=False, autocommit=False, expire_on_commit=False, bind=engine
+)
 
 
 def get_db():
