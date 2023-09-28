@@ -59,7 +59,7 @@ class TestKakaoLoginService:
         mocked_user_repository: Mock,
     ):
         mocker.patch(
-            "src.service.http_service.HttpService.get_kakao_oauth_token",
+            "src.service.http.HttpService.get_kakao_oauth_token",
             return_value=KakaoOauthTokenResponse(
                 token_type="bearer",
                 access_token="test_access_token",
@@ -72,7 +72,7 @@ class TestKakaoLoginService:
         )
 
         mocker.patch(
-            "src.service.http_service.HttpService.get_kakao_jwks",
+            "src.service.http.HttpService.get_kakao_jwks",
             return_value=[
                 JWK(
                     kty="RSA",

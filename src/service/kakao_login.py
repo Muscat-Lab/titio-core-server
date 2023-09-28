@@ -138,7 +138,7 @@ class KakaoLoginService:
                 )
             )
 
-        redirect_url = urlparse(claims.redirect_uri[1:-1])
+        redirect_url = urlparse(claims.redirect_uri)
 
         return urlunparse(
             (
