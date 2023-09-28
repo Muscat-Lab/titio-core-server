@@ -19,10 +19,10 @@ async def kakao_login_callback_handler(
 
 @router.get("/kakao/init", response_model=None)
 async def kakao_login_handler(
-    redirect_uri: str,
+    redirectUri: str,
     kakao_login_service: KakaoLoginService = Depends(),
 ):
     return RedirectResponse(
-        url=kakao_login_service.get_oauth_authorize_url(redirect_uri),
+        url=kakao_login_service.get_oauth_authorize_url(redirectUri),
         status_code=status.HTTP_303_SEE_OTHER,
     )
