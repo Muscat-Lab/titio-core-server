@@ -1,3 +1,5 @@
+from uuid import UUID
+
 from fastapi import Depends
 from sqlalchemy import select
 from sqlalchemy.orm import Session
@@ -30,3 +32,9 @@ class UserRepository:
 
     def get_user_by_kakao_id(self, kakao_id: str) -> User | None:
         return self.session.scalar(select(User).where(User.kakao_id == kakao_id))
+
+    def find_user_by_id(self, user_id: UUID) -> User | None:
+        return self.session.scalar(select(User).where(User.id == user_id))
+
+    def find_user_by_username(self, username: str) -> User | None:
+        return self.session.scalar(select(User).where(User.username == username))

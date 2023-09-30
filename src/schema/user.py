@@ -1,4 +1,6 @@
 from datetime import datetime
+from uuid import UUID
+
 from pydantic import BaseModel, Field, ConfigDict
 
 
@@ -9,7 +11,7 @@ class SignUpRequest(BaseModel):
 
 
 class UserSchema(BaseModel):
-    id: int = Field(titl="ID", description="user id")
+    id: UUID = Field(titl="ID", description="user id")
     password: str = Field(title="password")
     email: str = Field("test@test.com", title="Email")
     username: str = Field("test", title="Nickname")

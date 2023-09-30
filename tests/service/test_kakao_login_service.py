@@ -118,4 +118,4 @@ class TestKakaoLoginService:
         assert parsed_url.scheme == "https"
         assert parsed_url.netloc == "tito.kr"
         assert parsed_url.path == "/main"
-        assert "access_token" in parsed_url.query
+        assert "accessToken" in parsed_url.query

@@ -1,38 +1,56 @@
+import datetime
+from uuid import UUID
+
 from fastapi import APIRouter, Depends, status
 from fastapi.responses import RedirectResponse
+from pydantic import BaseModel, ConfigDict
+from pydantic.alias_generators import to_camel
 
+from src.auth.jwt_handler import get_current_user
 from src.service.kakao_login import KakaoLoginService
 from src.service.user import UserService
 from src.schema.user import SignUpRequest
-from src.auth.hash_password import HashPassword
 
 router = APIRouter(prefix="/users", tags=["user"])
-hash_password = HashPassword()
+
+
+class UserResponse(BaseModel):
+    model_config = ConfigDict(
+        alias_generator=to_camel,
+        populate_by_name=True,
+    )
+
+    id: UUID
+    email: str
+    username: str
 
 
 @router.get("/")
-def user_list_handler(
+async def user_list_handler(
     user_service: UserService = Depends(),
-):
-    return user_service.get_user_list()
+) -> list[UserResponse]:
+    return [
+        UserResponse.model_validate(user, from_attributes=True)
+        for user in await user_service.get_user_list()
+    ]
 
 
-@router.post("/sign-up", status_code=201)
-def user_sign_up_handler(
-    request: SignUpRequest,
-    user_service: UserService = Depends(),
-):
-    # 1.유저가 있으면,exist User?에러 발생.
-    # if user:
-    #     raise HTTPException(
-    #         status_code=status.HTTP_409_CONFLICT, detail="이미 존재하는 사용자입니다."
-    #     )
-    #  유저가 없으면 해쉬 패스워드 하고, 유저생성해줌. 그리고 리턴
-    user_service.sign_up(request.email, request.password)  # 작동안함
+class UserMeResponse(BaseModel):
+    model_config = ConfigDict(
+        alias_generator=to_camel,
+        populate_by_name=True,
+    )
 
-    return
+    id: UUID
+    email: str
+    username: str
 
 
-@router.post("/sign-in")
-def user_log_in_handler():
-    return
+@router.get("/me")
+async def user_me_handler(
+    user_service: UserService = Depends(), auth: UUID = Depends(get_current_user)
+) -> UserMeResponse:
+    return UserMeResponse.model_validate(
+        await user_service.find_user_by_id(user_id=auth),
+        from_attributes=True,
+    )

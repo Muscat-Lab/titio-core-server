@@ -4,7 +4,7 @@ import jwt
 
 from urllib.parse import urlencode, urlunparse, urlparse
 from fastapi import Depends
-from pydantic.v1 import BaseModel
+from pydantic import BaseModel
 
 from src.auth.jwt_handler import create_access_token
 from src.config import get_config, ConfigTemplate
@@ -146,7 +146,7 @@ class KakaoLoginService:
                 redirect_url.netloc,
                 redirect_url.path,
                 "",
-                urlencode({"access_token": create_access_token(str(user.id))}),
+                urlencode({"accessToken": create_access_token(str(user.id))}),
                 "",
             )
         )

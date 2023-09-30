@@ -1,7 +1,7 @@
 import logging
 
 from fastapi import Depends
-from pydantic.v1 import BaseModel
+from pydantic import BaseModel
 
 from src.config import ConfigTemplate, get_config
 from src.exceptions.exception import ServiceException, ErrCode
