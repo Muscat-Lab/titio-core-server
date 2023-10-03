@@ -1,3 +1,4 @@
+import datetime
 import uuid
 from typing import List
 
@@ -31,7 +32,7 @@ class Area(Base):
 class Performance(Base):
     __tablename__ = "performances"
 
-    id = mapped_column(Uuid, primary_key=True, index=True)
+    id = mapped_column(Uuid, primary_key=True, index=True, default=uuid.uuid4())
     title = mapped_column(String(50), nullable=False)
     running_time = mapped_column(String(30), nullable=False)
     grade = mapped_column(String(30), nullable=False)
@@ -43,6 +44,28 @@ class Performance(Base):
     areas: Mapped[List["Area"]] = relationship(back_populates="performance")
     seat_grades: Mapped[List["SeatGrade"]] = relationship(back_populates="performance")
     discounts: Mapped[List["Discount"]] = relationship(back_populates="performance")
+
+    @classmethod
+    def create(
+        cls,
+        title: str,
+        running_time: str,
+        grade: str,
+        begin: datetime.date,
+        end: datetime.date,
+        pre_booking_enabled: bool,
+        pre_booking_closed_at: datetime.datetime | None,
+    ) -> "Performance":
+        return cls(
+
+            title=title,
+            running_time=running_time,
+            grade=grade,
+            begin=begin,
+            end=end,
+            pre_booking_enabled=pre_booking_enabled,
+            pre_booking_closed_at=pre_booking_closed_at,
+        )
 
 
 class Seat(Base):

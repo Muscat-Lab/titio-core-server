@@ -2,11 +2,12 @@ import uuid
 from unittest.mock import Mock
 
 import pytest
+from fastapi import HTTPException
 
 from src.models.model import User
 from src.repositories.user import UserRepository
 from src.service.user import UserService
-from tests.service.service_fixture import default_user
+from tests.fixture.user import default_user
 
 
 class TestUserService:
@@ -35,6 +36,7 @@ class TestUserService:
         # user not found
         mocked_user_repository.find_user_by_id.return_value = None
 
-        user = await user_service.find_user_by_id(user_id=uuid.uuid4())
-
-        assert user is None
+        try:
+            await user_service.find_user_by_id(user_id=uuid.uuid4())
+        except HTTPException as e:
+            assert e.status_code == 404
