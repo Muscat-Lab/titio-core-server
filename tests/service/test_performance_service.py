@@ -28,7 +28,9 @@ class TestPerformanceService:
             default_performance
         ]
 
-        performances = await performance_service.get_performance_list()
+        performances = await performance_service.get_performance_list(
+            limit=20,
+        )
 
         assert len(performances) != 0
 

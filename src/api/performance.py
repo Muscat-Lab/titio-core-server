@@ -34,16 +34,20 @@ async def performance_list_handler(
     q: PerformanceListRequest = Depends(),
     performance_service: PerformanceService = Depends(),
 ) -> PerformanceListResponse:
+    performances = await performance_service.get_performance_list(
+        limit=q.limit,
+        cursor=q.cursor,
+        pre_booking_enabled=q.pre_booking_enabled,
+    )
+
     return PerformanceListResponse(
         performances=[
             PerformanceListResponse.Performance.model_validate(
                 performance, from_attributes=True
             )
-            for performance in await performance_service.get_performance_list(
-                pre_booking_enabled=q.pre_booking_enabled
-            )
+            for performance in performances
         ],
-        next_cursor=None,
+        next_cursor=performances[-1].latest_cursor if performances else None,
     )
 
 

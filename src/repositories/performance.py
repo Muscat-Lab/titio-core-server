@@ -22,6 +22,8 @@ class PerformanceRepository:
 
     async def get_performance_list(
         self,
+        limit: int,
+        cursor: str | None = None,
         pre_booking_enabled: bool | None = None,
     ) -> list[Performance]:
         query = select(Performance)
@@ -29,10 +31,13 @@ class PerformanceRepository:
         if pre_booking_enabled is not None:
             query = query.where(Performance.pre_booking_enabled == pre_booking_enabled)
 
+        if cursor is not None:
+            query = query.where(Performance.created_at < cursor)
+
         return list(
             (
                 self.session.scalars(
-                    query.order_by(Performance.created_at.desc()).limit(10)
+                    query.order_by(Performance.latest_cursor.desc()).limit(limit)
                 )
             ).all()
         )

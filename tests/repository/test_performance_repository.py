@@ -37,7 +37,9 @@ class TestPerformanceRepository:
         self, performance_repository: PerformanceRepository
     ):
         # happy path
-        performances = await performance_repository.get_performance_list()
+        performances = await performance_repository.get_performance_list(
+            limit=20,
+        )
 
         assert len(performances) != 0
 
@@ -67,7 +69,7 @@ class TestPerformanceRepository:
         )
 
         performances = await performance_repository.get_performance_list(
-            pre_booking_enabled=True
+            limit=20, pre_booking_enabled=True
         )
 
         assert len(performances) != 0
@@ -75,7 +77,7 @@ class TestPerformanceRepository:
             assert performance.pre_booking_enabled == True
 
         performances = await performance_repository.get_performance_list(
-            pre_booking_enabled=False
+            limit=20, pre_booking_enabled=False
         )
 
         assert len(performances) != 0

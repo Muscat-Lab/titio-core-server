@@ -13,10 +13,12 @@ class PerformanceService:
 
     async def get_performance_list(
         self,
+        limit: int,
+        cursor: str | None = None,
         pre_booking_enabled: bool | None = None,
     ):
         return await self.performance_repository.get_performance_list(
-            pre_booking_enabled=pre_booking_enabled
+            limit=limit, cursor=cursor, pre_booking_enabled=pre_booking_enabled
         )
 
     async def delete_performance(self, performance_id):

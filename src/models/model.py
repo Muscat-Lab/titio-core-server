@@ -14,6 +14,7 @@ from sqlalchemy import (
     Text,
     UniqueConstraint,
     Time,
+    Computed,
 )
 from sqlalchemy.orm import mapped_column, relationship, Mapped
 
@@ -59,6 +60,15 @@ class Performance(Base):
     schedules: Mapped[List["Schedule"]] = relationship(back_populates="performance")
     contents: Mapped[List["PerformanceContent"]] = relationship(
         back_populates="performance"
+    )
+
+    latest_cursor = mapped_column(
+        String(256),
+        Computed(
+            "CONCAT(created_at, ':', id)",
+        ),
+        index=True,
+        nullable=False,
     )
 
     @classmethod
