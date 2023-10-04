@@ -12,7 +12,7 @@ from sqlalchemy import (
     Integer,
     ForeignKey,
     Text,
-    UniqueConstraint,
+    UniqueConstraint, Time,
 )
 from sqlalchemy.orm import mapped_column, relationship, Mapped
 
@@ -55,6 +55,10 @@ class Performance(Base):
     areas: Mapped[List["Area"]] = relationship(back_populates="performance")
     seat_grades: Mapped[List["SeatGrade"]] = relationship(back_populates="performance")
     discounts: Mapped[List["Discount"]] = relationship(back_populates="performance")
+    schedules: Mapped[List["Schedule"]] = relationship(back_populates="performance")
+    contents: Mapped[List["PerformanceContent"]] = relationship(
+        back_populates="performance"
+    )
 
     @classmethod
     def create(
@@ -93,6 +97,77 @@ class PerformanceContent(Base):
             "sequence",
         ),
     )
+
+    performance: Mapped["Performance"] = relationship(back_populates="contents")
+
+
+class Location(Base):
+    __tablename__ = "locations"
+
+    id = mapped_column(Uuid, primary_key=True, index=True, default=uuid.uuid4)
+    title = mapped_column(String(150), nullable=False)
+    x = mapped_column(Float, nullable=False)
+    y = mapped_column(Float, nullable=False)
+    address_name = mapped_column(String(150), nullable=False)
+    place_name = mapped_column(String(150), nullable=False)
+    kakao_place_name = mapped_column(String(150), nullable=False)
+    kakao_place_url = mapped_column(String(150), nullable=False)
+
+
+class Performer(Base):
+    __tablename__ = "performers"
+
+    id = mapped_column(Uuid, primary_key=True, index=True, default=uuid.uuid4)
+    name = mapped_column(String(20), nullable=False)
+    description = mapped_column(Text, nullable=False)
+
+    castings: Mapped[List["Casting"]] = relationship(back_populates="performer")
+
+
+class Role(Base):
+    __tablename__ = "roles"
+
+    id = mapped_column(Uuid, primary_key=True, index=True, default=uuid.uuid4)
+    name = mapped_column(String(20), nullable=False)
+
+    castings: Mapped[List["Casting"]] = relationship(back_populates="role")
+
+
+class Casting(Base):
+    __tablename__ = "castings"
+
+    id = mapped_column(Uuid, primary_key=True, index=True, default=uuid.uuid4)
+    performer_id = mapped_column(ForeignKey("performers.id"), nullable=False)
+    role_id = mapped_column(ForeignKey("roles.id"), nullable=False)
+
+    performer: Mapped["Performer"] = relationship(back_populates="castings")
+    role: Mapped["Role"] = relationship(back_populates="castings")
+    schedules: Mapped[List["ScheduleCasting"]] = relationship(
+        back_populates="casting"
+    )
+
+
+class Schedule(Base):
+    __tablename__ = "schedules"
+
+    id = mapped_column(Uuid, primary_key=True, index=True, default=uuid.uuid4)
+    performance_id = mapped_column(ForeignKey("performances.id"), nullable=False)
+    date = mapped_column(Date, nullable=False)
+    time = mapped_column(Time, nullable=False)
+
+    castings: Mapped[List["ScheduleCasting"]] = relationship(back_populates="schedule")
+    performance: Mapped["Performance"] = relationship(back_populates="schedules")
+
+
+class ScheduleCasting(Base):
+    __tablename__ = "schedule_casts"
+
+    id = mapped_column(Uuid, primary_key=True, index=True, default=uuid.uuid4)
+    schedule_id = mapped_column(ForeignKey("schedules.id"), nullable=False)
+    casting_id = mapped_column(ForeignKey("castings.id"), nullable=False)
+
+    schedule: Mapped["Schedule"] = relationship(back_populates="castings")
+    casting: Mapped["Casting"] = relationship(back_populates="schedules")
 
 
 class Seat(Base):
