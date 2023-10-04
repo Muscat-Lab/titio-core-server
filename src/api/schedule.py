@@ -66,7 +66,7 @@ class ScheduleByDatetimeResponse(RequestBase):
     performers: list[Performer]
 
 
-@router.get("/by_datetime")
+@router.get("/byDatetime")
 async def schedule_by_datetime_handler(
     q: ScheduleByDatetimeRequest = Depends(),
 ) -> ScheduleByDatetimeResponse:
