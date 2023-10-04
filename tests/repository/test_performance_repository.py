@@ -95,8 +95,8 @@ class TestPerformanceRepository:
 
         await performance_repository.delete_performance(performance.id)
 
-        performance = await performance_repository.find_performance_by_id(
+        deleted_performance = await performance_repository.find_performance_by_id(
             performance_id=performance.id
         )
 
-        assert performance is None
+        assert deleted_performance is None

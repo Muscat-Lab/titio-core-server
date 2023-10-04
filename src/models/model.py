@@ -12,7 +12,8 @@ from sqlalchemy import (
     Integer,
     ForeignKey,
     Text,
-    UniqueConstraint, Time,
+    UniqueConstraint,
+    Time,
 )
 from sqlalchemy.orm import mapped_column, relationship, Mapped
 
@@ -142,9 +143,7 @@ class Casting(Base):
 
     performer: Mapped["Performer"] = relationship(back_populates="castings")
     role: Mapped["Role"] = relationship(back_populates="castings")
-    schedules: Mapped[List["ScheduleCasting"]] = relationship(
-        back_populates="casting"
-    )
+    schedules: Mapped[List["ScheduleCasting"]] = relationship(back_populates="casting")
 
 
 class Schedule(Base):

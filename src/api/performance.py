@@ -4,14 +4,18 @@ from uuid import UUID
 from fastapi import APIRouter, Depends, Query
 from pydantic import Field
 
-from src.api.request import ResponseBase, RequestBase
+from src.api.request import ResponseBase, RequestBase, ListRequestBase, ListResponseBase
 from src.models.model import Performance
 from src.service.performance import PerformanceService
 
 router = APIRouter(prefix="/performances", tags=["performance"])
 
 
-class PerformanceListResponse(ResponseBase):
+class PerformanceListRequest(ListRequestBase):
+    pre_booking_enabled: bool | None = Query(None)
+
+
+class PerformanceListResponse(ListResponseBase):
     class Performance(ResponseBase):
         id: UUID
         title: str
@@ -23,11 +27,6 @@ class PerformanceListResponse(ResponseBase):
         pre_booking_closed_at: datetime.datetime | None = None
 
     performances: list[Performance]
-    next_cursor: str | None = None
-
-class PerformanceListRequest(RequestBase):
-    pre_booking_enabled: bool | None = Query(None)
-
 
 
 @router.get("")

@@ -3,19 +3,16 @@ from uuid import UUID
 
 from fastapi import APIRouter, Depends
 
-from src.api.request import ResponseBase, RequestBase
+from src.api.request import ResponseBase, ListRequestBase, ListResponseBase
 
 router = APIRouter(prefix="/castings", tags=["casting"])
 
-class CastingListRequest(RequestBase):
+
+class CastingListRequest(ListRequestBase):
     performance_id: UUID
-    schedule_id: UUID | None = None
-    date: datetime.date | None = None
-    time: datetime.time | None = None
-    performer_id: UUID | None = None
 
 
-class CastingListResponse(ResponseBase):
+class CastingListResponse(ListResponseBase):
     class Casting(ResponseBase):
         id: UUID
         performer_name: str
@@ -25,7 +22,7 @@ class CastingListResponse(ResponseBase):
         profile_url: str
 
     castings: list[Casting]
-    next_cursor: str | None = None
+
 
 @router.get("")
 async def casting_list_handler(

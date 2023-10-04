@@ -50,7 +50,10 @@ class TestPerformanceAPI:
         ]
 
         response = await performance_list_handler(
-            q=PerformanceListRequest(),
+            q=PerformanceListRequest(
+                limit=20,
+                cursor=None,
+            ),
             performance_service=mocked_performance_service,
         )
 

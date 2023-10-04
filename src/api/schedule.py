@@ -2,18 +2,17 @@ import datetime
 from uuid import UUID
 
 from fastapi import APIRouter, Depends
-from pydantic import Field
 
-from src.api.request import RequestBase
+from src.api.request import RequestBase, ListRequestBase, ListResponseBase
 
 router = APIRouter(prefix="/schedules", tags=["schedule"])
 
-class ScheduleDateListRequest(RequestBase):
+
+class ScheduleDateListRequest(ListRequestBase):
     performance_id: UUID
-    limit: int = Field(20, ge=1, le=20)
 
 
-class ScheduleDateListResponse(RequestBase):
+class ScheduleDateListResponse(ListResponseBase):
     dates: list[str]
     next_cursor: str | None = None
 
@@ -27,15 +26,14 @@ async def schedule_date_list_handler(
         next_cursor=None,
     )
 
-class ScheduleTimeListRequest(RequestBase):
+
+class ScheduleTimeListRequest(ListRequestBase):
     performance_id: UUID
     date: datetime.date
-    limit: int = Field(20, ge=1, le=20)
 
 
-class ScheduleTimeListResponse(RequestBase):
+class ScheduleTimeListResponse(ListResponseBase):
     times: list[datetime.time]
-    next_cursor: str | None = None
 
 
 @router.get("/times")
@@ -49,6 +47,7 @@ async def schedule_time_list_handler(
         ],
         next_cursor=None,
     )
+
 
 class ScheduleByDatetimeRequest(RequestBase):
     performance_id: UUID
@@ -73,9 +72,8 @@ async def schedule_by_datetime_handler(
 ) -> ScheduleByDatetimeResponse:
     return ScheduleByDatetimeResponse(
         id=UUID("d1b9d1a0-0b1a-4e1a-9b1a-0b1a0b1a0b11"),
-        performance_id=UUID("d1b9d1a0-0b1a-4e1a-9b1a-0b1a0b1a0111"),
-        date="2021-01-01",
-        time="12:00",
+        date=datetime.date(year=2021, month=1, day=1),
+        time=datetime.time(hour=12, minute=0),
         performers=[
             ScheduleByDatetimeResponse.Performer(
                 id=UUID("d1b9d1a0-0b1a-4e1a-9b1a-0b1a0b111111"),

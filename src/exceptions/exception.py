@@ -23,12 +23,10 @@ class ErrCode(str, enum.Enum):
         }[self]
 
 
-class ServiceException(HTTPException):
+class ServiceException(Exception):
     def __init__(
         self, error_code: ErrCode, status_code: int = 500, message: str = ""
     ) -> None:
         self.status_code = status_code
-        self.detail = {
-            "error_code": error_code,
-            "message": message or error_code.message,
-        }
+        self.message = message or error_code.message
+        self.error_code = error_code

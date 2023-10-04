@@ -2,14 +2,16 @@ from uuid import UUID
 
 from fastapi import APIRouter, Depends
 
-from src.api.request import ResponseBase, RequestBase
+from src.api.request import ResponseBase, ListRequestBase, ListResponseBase
 
 router = APIRouter(prefix="/performanceContents", tags=["performanceContent"])
 
-class PerformanceContentListRequest(RequestBase):
+
+class PerformanceContentListRequest(ListRequestBase):
     performance_id: UUID
 
-class PerformanceContentListResponse(ResponseBase):
+
+class PerformanceContentListResponse(ListResponseBase):
     class PerformanceContent(ResponseBase):
         id: UUID
         performance_id: UUID
@@ -17,7 +19,7 @@ class PerformanceContentListResponse(ResponseBase):
         content: str
 
     performance_contents: list[PerformanceContent]
-    next_cursor: str | None = None
+
 
 @router.get("")
 async def performance_content_list_handler(
