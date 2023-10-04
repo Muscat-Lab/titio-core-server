@@ -49,12 +49,12 @@ class TestPerformanceAPI:
             default_performance,
         ]
 
-        performances = await performance_list_handler(
+        response = await performance_list_handler(
             q=PerformanceListRequest(),
             performance_service=mocked_performance_service,
         )
 
-        assert len(performances) == 1
+        assert len(response.performances) == 1
 
     @pytest.mark.asyncio
     async def test_delete_performance(
@@ -68,7 +68,7 @@ class TestPerformanceAPI:
         mocked_performance_service.delete_performance.return_value = default_performance
 
         await performance_delete_handler(
-            performance_id=default_performance.id,
+            performanceId=default_performance.id,
             performance_service=mocked_performance_service,
         )
 
