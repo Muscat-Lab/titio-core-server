@@ -43,10 +43,10 @@ class HttpService:
         data: KakaoOauthTokenRequest,
     ) -> KakaoOauthTokenResponse:
         try:
-            result = KakaoOauthTokenResponse.parse_obj(
+            result = KakaoOauthTokenResponse.model_validate(
                 await self.http_client.post(
                     f"https://{self.config.KAKAO_API_HOST}/oauth/token",
-                    data=data.dict(),
+                    data=data.model_dump(),
                 )
             )
 
@@ -62,7 +62,7 @@ class HttpService:
     async def get_kakao_jwks(self) -> list[JWK]:
         try:
             return [
-                JWK.parse_obj(jwk)
+                JWK.model_validate(jwk)
                 for jwk in (
                     await self.http_client.get(
                         f"https://{self.config.KAKAO_API_HOST}/.well-known/jwks.json"

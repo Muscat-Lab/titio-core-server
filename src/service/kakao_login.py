@@ -86,7 +86,7 @@ class KakaoLoginService:
                         client_id=self.config.KAKAO_CLIENT_ID,
                         redirect_uri=f"{self.config.SERVER_HOST}/oauth/kakao/callback",
                         nonce=redirect_uri,
-                    ).dict()
+                    ).model_dump()
                 ),
                 "",
             )
@@ -165,7 +165,7 @@ class KakaoLoginService:
                     status_code=500,
                 )
 
-            pem_key = jwk_to_pem(jwk=JWK.parse_obj(matching_keys[0]))
+            pem_key = jwk_to_pem(jwk=JWK.model_validate(matching_keys[0]))
 
             claims = jwt.decode(
                 id_token,
@@ -195,4 +195,4 @@ class KakaoLoginService:
                 status_code=500,
             )
 
-        return KakaoIdTokenClaims.parse_obj(claims)
+        return KakaoIdTokenClaims.model_validate(claims)

@@ -14,5 +14,5 @@ def default_performance() -> Performance:
         begin=datetime.date.today(),
         end=datetime.date.today(),
         pre_booking_enabled=True,
-        pre_booking_closed_at=datetime.datetime.now()
+        pre_booking_closed_at=datetime.datetime.now(),
     )

@@ -2,7 +2,18 @@ import datetime
 import uuid
 from typing import List
 
-from sqlalchemy import Uuid, String, Date, Boolean, DateTime, Float, Integer, ForeignKey
+from sqlalchemy import (
+    Uuid,
+    String,
+    Date,
+    Boolean,
+    DateTime,
+    Float,
+    Integer,
+    ForeignKey,
+    Text,
+    UniqueConstraint,
+)
 from sqlalchemy.orm import mapped_column, relationship, Mapped
 
 from .base import Base
@@ -32,7 +43,7 @@ class Area(Base):
 class Performance(Base):
     __tablename__ = "performances"
 
-    id = mapped_column(Uuid, primary_key=True, index=True, default=uuid.uuid4())
+    id = mapped_column(Uuid, primary_key=True, index=True, default=uuid.uuid4)
     title = mapped_column(String(50), nullable=False)
     running_time = mapped_column(String(30), nullable=False)
     grade = mapped_column(String(30), nullable=False)
@@ -57,7 +68,6 @@ class Performance(Base):
         pre_booking_closed_at: datetime.datetime | None,
     ) -> "Performance":
         return cls(
-
             title=title,
             running_time=running_time,
             grade=grade,
@@ -66,6 +76,23 @@ class Performance(Base):
             pre_booking_enabled=pre_booking_enabled,
             pre_booking_closed_at=pre_booking_closed_at,
         )
+
+
+class PerformanceContent(Base):
+    __tablename__ = "performance_contents"
+
+    id = mapped_column(Uuid, primary_key=True, index=True, default=uuid.uuid4)
+    performance_id = mapped_column(ForeignKey("performances.id"), nullable=False)
+    sequence = mapped_column(Integer, nullable=False)
+    heading = mapped_column(String(256), nullable=False)
+    content = mapped_column(Text, nullable=False)
+
+    __table_args__ = (
+        UniqueConstraint(
+            "performance_id",
+            "sequence",
+        ),
+    )
 
 
 class Seat(Base):
@@ -108,7 +135,7 @@ class Discount(Base):
 class User(Base):
     __tablename__ = "users"
 
-    id = mapped_column(Uuid, primary_key=True, index=True, default=uuid.uuid4())
+    id = mapped_column(Uuid, primary_key=True, index=True, default=uuid.uuid4)
     email = mapped_column(
         String(256),
         unique=True,

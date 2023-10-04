@@ -2,9 +2,7 @@ from uuid import UUID
 
 from fastapi import Depends, HTTPException
 
-from src.schema.user import UserSchema
 from src.models.model import User
-from src.auth.hash_password import get_password_hash
 from src.database.connection import get_db
 from src.repositories.user import UserRepository
 

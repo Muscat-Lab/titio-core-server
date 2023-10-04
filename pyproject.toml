@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "tix2go"
+name = "tito-api"
 version = "0.1.0"
 description = ""
 authors = ["Luceta <57941164+Luceta@users.noreply.github.com>"]
