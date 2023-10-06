@@ -1,8 +1,7 @@
 import pytest
-
 from fastapi.testclient import TestClient
 
-from src.config import ConfigTemplate, config, get_config
+from src.config import ConfigTemplate
 from src.main import app
 from src.models import model
 

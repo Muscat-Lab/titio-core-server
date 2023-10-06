@@ -1,6 +1,6 @@
 from fastapi import Depends
-from sqlalchemy import create_engine, Engine
-from sqlalchemy.orm import sessionmaker, Session
+from sqlalchemy import Engine, create_engine
+from sqlalchemy.orm import Session, sessionmaker
 
 from src.config import ConfigTemplate, get_config
 
@@ -22,7 +22,10 @@ class SqlaEngine:
     @property
     def session(self) -> sessionmaker[Session]:
         return sessionmaker(
-            autoflush=False, autocommit=False, expire_on_commit=False, bind=self._engine
+            autoflush=False,
+            autocommit=False,
+            expire_on_commit=False,
+            bind=self._engine,
         )
 
 

@@ -1,4 +1,3 @@
-import uuid
 from unittest.mock import Mock
 from urllib.parse import urlencode, urlparse
 
@@ -6,10 +5,10 @@ import pytest
 
 from src.config import ConfigTemplate
 from src.repositories.user import UserRepository
-from src.service.http import KakaoOauthTokenResponse, HttpService
+from src.service.http import HttpService, KakaoOauthTokenResponse
+from src.service.kakao_login import KakaoLoginService
 from src.utils.auth import JWK
 from src.utils.http_client import AioHttpClient
-from src.service.kakao_login import KakaoLoginService
 
 config = ConfigTemplate()
 
@@ -33,7 +32,7 @@ class TestKakaoLoginService:
     @pytest.mark.asyncio
     async def test_get_oauth_authorize_url(self, kakao_login_service):
         callback_url = f"{config.SERVER_HOST}/oauth/kakao/callback"
-        redirect_uri = f"https://tito.kr/main"
+        redirect_uri = "https://tito.kr/main"
 
         oauth_authorize_url = kakao_login_service.get_oauth_authorize_url(redirect_uri)
 

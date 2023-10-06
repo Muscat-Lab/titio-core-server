@@ -24,7 +24,7 @@ class UserRepository:
     def get_user_by_email(self, email: str) -> User | None:
         return self.session.scalar(select(User).where(User.email == email))
 
-    def save_user(self, user: User) -> User:
+    async def save_user(self, user: User) -> User:
         self.session.add(instance=user)
         self.session.commit()  # db save
         self.session.refresh(instance=user)

@@ -1,20 +1,17 @@
 import logging
+from urllib.parse import urlencode, urlparse, urlunparse
 
 import jwt
-
-from urllib.parse import urlencode, urlunparse, urlparse
 from fastapi import Depends
 from pydantic import BaseModel
 
 from src.auth.jwt_handler import create_access_token
-from src.config import get_config, ConfigTemplate
-from src.exceptions.exception import ServiceException, ErrCode
+from src.config import ConfigTemplate, get_config
+from src.exceptions.exception import ErrCode, ServiceException
 from src.models.model import User
 from src.repositories.user import UserRepository
-from src.service.http import KakaoOauthTokenRequest, HttpService
-from src.utils.auth import jwk_to_pem, JWK
-
-import logging
+from src.service.http import HttpService, KakaoOauthTokenRequest
+from src.utils.auth import JWK, jwk_to_pem
 
 # 로깅 설정
 logging.basicConfig(level=logging.INFO)
@@ -86,7 +83,7 @@ class KakaoLoginService:
                         client_id=self.config.KAKAO_CLIENT_ID,
                         redirect_uri=f"{self.config.SERVER_HOST}/oauth/kakao/callback",
                         nonce=redirect_uri,
-                    ).dict()
+                    ).model_dump()
                 ),
                 "",
             )
@@ -129,7 +126,7 @@ class KakaoLoginService:
         user = self.user_repository.get_user_by_kakao_id(claims.user_id)
 
         if not user:
-            user = self.user_repository.save_user(
+            user = await self.user_repository.save_user(
                 user=User(
                     kakao_id=claims.user_id,
                     email=claims.email,
@@ -165,7 +162,7 @@ class KakaoLoginService:
                     status_code=500,
                 )
 
-            pem_key = jwk_to_pem(jwk=JWK.parse_obj(matching_keys[0]))
+            pem_key = jwk_to_pem(jwk=JWK.model_validate(matching_keys[0]))
 
             claims = jwt.decode(
                 id_token,
@@ -195,4 +192,4 @@ class KakaoLoginService:
                 status_code=500,
             )
 
-        return KakaoIdTokenClaims.parse_obj(claims)
+        return KakaoIdTokenClaims.model_validate(claims)

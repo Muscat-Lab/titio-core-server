@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, status, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.responses import RedirectResponse
 from fastapi.security import OAuth2PasswordRequestForm
 
@@ -22,7 +22,10 @@ async def login(
     if not verify_password(form_data.password, user.password):
         raise HTTPException(status_code=400, detail="Incorrect username or password")
 
-    return {"access_token": create_access_token(str(user.id)), "token_type": "bearer"}
+    return {
+        "access_token": create_access_token(str(user.id)),
+        "token_type": "bearer",
+    }
 
 
 @router.get("/kakao/callback")
