@@ -63,7 +63,7 @@ async def user_avatar_image_handler(
     avatar_image: UploadFile = File(),
     user_service: UserService = Depends(),
     auth: UUID = Depends(get_current_user),
-):
+) -> UserAvatarImageResponse:
     uploaded_url = await user_service.upload_avatar_image(
         user_id=auth, file=avatar_image
     )
