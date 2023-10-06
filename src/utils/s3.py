@@ -73,6 +73,7 @@ class S3Util:
         async with self.session.client(
             "s3",
             endpoint_url=self.config.AWS_S3_ENDPOINT_URL,
+            region_name="ap-northeast-2",
         ) as s3:
             return await s3.generate_presigned_url(
                 "get_object",
