@@ -40,9 +40,28 @@ services:
     volumes:
       - redis_data:/data
 
+  s3:
+    image: minio/minio
+    entrypoint: sh
+    container_name: s3
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    environment:
+      MINIO_ROOT_USER: minio
+      MINIO_ROOT_PASSWORD: minio1234
+    restart: always
+    volumes:
+      - minio_data:/data
+    command: -c 'mkdir -p /data/dev && minio server --console-address :9001 /data'
+
+
+
 volumes:
   mysql_data:
     external: false
   redis_data:
+    external: false
+  minio_data:
     external: false
 

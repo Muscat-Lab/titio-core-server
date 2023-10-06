@@ -130,6 +130,7 @@ async def pre_booking_get_handler(
         performance=PreBookingGetResponse.Performance(
             id=UUID("d1b9d1a0-0b1a-4e1a-9b1a-0b1a1b2a0b1a"),
             title="하트시그널",
+            thumbnail_url="https://www.edureka.co/blog/golang-tutorial/#var",
         ),
         status=PreBookingStatus.InProgress,
         schedule=PreBookingGetResponse.Schedule(

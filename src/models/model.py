@@ -235,6 +235,14 @@ class User(Base):
     password = mapped_column(String(256), nullable=False)
     kakao_id = mapped_column(String(256), nullable=True, unique=True, index=True)
 
+    avatar_image_id = mapped_column(ForeignKey("images.id"), nullable=True)
+
+    avatar_image: Mapped["Image"] = relationship(
+        "Image",
+        foreign_keys=[avatar_image_id],
+        backref="users",
+    )
+
     @classmethod
     def create(cls, email: str, password: str, username: str | None = None) -> "User":
         if username is None:
@@ -247,4 +255,12 @@ class User(Base):
         )
 
 
-__all__ = ["User", "Area", "Performance", "Seat", "SeatGrade", "Discount"]
+class Image(Base):
+    __tablename__ = "images"
+
+    id = mapped_column(Uuid, primary_key=True, index=True, default=uuid.uuid4)
+    path = mapped_column(String(256), nullable=False)
+    extension = mapped_column(String(8), nullable=False)
+
+
+__all__ = ["User", "Area", "Performance", "Seat", "SeatGrade", "Discount", "Image"]

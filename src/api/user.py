@@ -1,9 +1,10 @@
 from uuid import UUID
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, UploadFile, File
 from pydantic import BaseModel, ConfigDict
 from pydantic.alias_generators import to_camel
 
+from src.api.request import ResponseBase
 from src.auth.jwt_handler import get_current_user
 from src.service.user import UserService
 
@@ -49,4 +50,25 @@ async def user_me_handler(
     return UserMeResponse.model_validate(
         await user_service.find_user_by_id(user_id=auth),
         from_attributes=True,
+    )
+
+
+class UserAvatarImageResponse(ResponseBase):
+    id: UUID
+    avatar_image_url: str
+
+
+@router.post("/avatar_image")
+async def user_avatar_image_handler(
+    avatar_image: UploadFile = File(),
+    user_service: UserService = Depends(),
+    auth: UUID = Depends(get_current_user),
+):
+    uploaded_url = await user_service.upload_avatar_image(
+        user_id=auth, file=avatar_image
+    )
+
+    return UserAvatarImageResponse(
+        id=auth,
+        avatar_image_url=uploaded_url,
     )

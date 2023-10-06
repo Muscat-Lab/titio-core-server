@@ -129,7 +129,7 @@ class KakaoLoginService:
         user = self.user_repository.get_user_by_kakao_id(claims.user_id)
 
         if not user:
-            user = self.user_repository.save_user(
+            user = await self.user_repository.save_user(
                 user=User(
                     kakao_id=claims.user_id,
                     email=claims.email,

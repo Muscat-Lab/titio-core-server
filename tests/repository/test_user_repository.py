@@ -18,13 +18,14 @@ class TestUserRepository:
             username="default",
         )
 
-        user_repository.save_user(user=user)
-
         return user
 
-    def test_get_user_by_id(
+    @pytest.mark.asyncio
+    async def test_get_user_by_id(
         self,
         user_repository: UserRepository,
         default_user: User,
     ):
+        await user_repository.save_user(user=default_user)
+
         assert user_repository.find_user_by_id(user_id=default_user.id) == default_user
