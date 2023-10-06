@@ -63,7 +63,7 @@ class S3Util:
             raise ValueError("Invalid image file")
 
         # 파일 포인터를 다시 처음으로 이동
-        file.seek(0) 
+        file.seek(0)
 
 
     async def get_presigned_url_by_path(
@@ -71,7 +71,7 @@ class S3Util:
         path: str,
     ):
         async with self.session.client(
-            "cloudfront",
+            "s3",
             endpoint_url=self.config.AWS_S3_ENDPOINT_URL,
         ) as s3:
             return await s3.generate_presigned_url(

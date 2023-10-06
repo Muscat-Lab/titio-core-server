@@ -47,7 +47,6 @@ def upgrade() -> None:
         ["id"],
         unique=False,
     )
-    op.drop_column("users", "permissions")
     # ### end Alembic commands ###
 
 
