@@ -1,106 +1,75 @@
-# Poetry managed Python FastAPI application with Docker multi-stage builds
+# TITO Backend 입니다
 
-## About The Project
+![python](https://img.shields.io/badge/Python-3776AB?logo=python&logoColor=white&label=v3.11)
+![fastapi](https://img.shields.io/badge/Fastapi-009688?logo=fastapi&logoColor=white&label=v0.103.1)
+![poetry](https://img.shields.io/badge/Poetry-60A5FA?logo=poetry&logoColor=white&label=v1.6.1)
+![mysql](https://img.shields.io/badge/mysql-4479A1?logo=mysql&logoColor=white&label=v8.0.31)
 
-This repo serves as a minimal reference on setting up docker multi-stage builds with poetry.
 
-This is an updated and modified fork of [poetry-fastapi-docker](https://github.com/svx/poetry-fastapi-docker/blob/main/README.md).
+## 프로젝트 시작하기
 
-> **Note** - This is only tested with Linux and macOS
+```bash
+git clone https://github.com/Muscat-Lab/TITO_Backend.git
+cd TITO_Backend
+```
+
+## 로컬에서 서버를 실행하는 방법
 
 ### Requirements
 
-- [Docker >= 24.05](https://docs.docker.com/get-docker/)
-- [Python >= 3.11](https://www.python.org/downloads/release/python-3115/)
-- [Poetry](https://github.com/python-poetry/poetry)
+- ![docker](https://img.shields.io/badge/Docker-2496ED?logo=docker&logoColor=white)
+- ![docker-compose](https://img.shields.io/badge/Docker_Compose-000000?logo=docsdotrs&logoColor=white)
 
-  **NOTE** - Run all commands from the project root
 
-## Local development
+### Step 1. 서버 실행
 
-### Poetry
-
-Create the virtual environment and install dependencies with:
-
-```shell
-poetry install
+```bash
+docker-compose up -d
 ```
 
-See the [poetry docs](https://python-poetry.org/docs/) for information on how to add/update dependencies.
+![화면-기록-2023-10-06-오후-7 31 51](https://github.com/Muscat-Lab/TITO_Backend/assets/61671343/99842f78-cc02-4971-bfa3-81edd23ca2f5)
 
-Run commands inside the virtual environment with:
 
-```shell
-poetry run <your_command>
+
+### Step 2. DB 테이블 생성
+
+```bash
+make migration_init
 ```
 
-Spawn a shell inside the virtual environment with:
 
-```shell
+## 테스트
+
+### 테스트용 DB 구성하기
+
+1. 아래 경로의 `.env.test` 파일에 들어갑니다
+```
+TITO-Backend
+├── .env.test
+├── ...
+```
+
+2. 여기 써있는 db명과 같은 데이터베이스를 만들어야 합니다.
+```.env
+...
+APP_DATABASE_NAME=dev-test
+...
+```
+
+3. 기본적으로 APP_DATABASE_NAME 는 dev-test이기 때문에 아래 명령어로 테스트용 db를 생성할 수 있습니다
+```bash
+docker-compose exec mysql mysql -uroot -proot1234 -e "CREATE DATABASE \`dev-test\`;"
+```
+
+### 도커 쉘 들어가기
+
+```bash
+docker-compose exec -it fastapi /bin/bash
 poetry shell
 ```
 
-Start a development server locally:
+### 테스트 실행하기
 
-```shell
-poetry run uvicorn app.main:app --reload --host localhost --port 8000
+```bash
+pytest .
 ```
-
-API will be available at [localhost:8000/](http://localhost:8000/)
-
-- Swagger UI docs at [localhost:8000/docs](http://localhost:8000/docs)
-- ReDoc docs at [localhost:8000/redoc](http://localhost:8000/redoc)
-
-To run testing/linting locally you would run lint/test in the [scripts directory](/scripts).
-
-## Docker
-
-Build images with:
-
-```shell
-docker build -t poetry-project .
-```
-
-The Dockerfile uses multi-stage builds to run lint and test stages before building the production stage.
-If linting or testing fails the build will fail.
-
-You can stop the build at specific stages with the `--target` option:
-
-```shell
-docker build -t poetry-project --target $STAGE .
-```
-
-For example we wanted to stop at the **test** stage:
-
-```shell
-docker build -t poetry-project --target test .
-```
-
-We could then get a shell inside the container with:
-
-```shell
-docker run -it poetry-project bash
-```
-
-If you do not specify a target the resulting image will be the last image defined which in our case is the 'production' image.
-
-Run the 'production' image:
-
-```shell
-docker run -it -p 8000:8000 poetry-project
-```
-
-Open your browser and go to [http://localhost:8000/redoc](http://localhost:8000/redoc) to see the API spec in ReDoc.
-
-### Docker Compose
-
-You can build and run the container with Docker Compose
-
-```shell
-docker compose up
-```
-
-Or, run in _detached_ mode if you prefer.
-
-> **NOTE** - If you use an older version of Docker Compose,
-> you may need to uncomment the version in the docker-compose,yml file!
