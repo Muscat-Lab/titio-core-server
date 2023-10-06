@@ -4,7 +4,7 @@ from fastapi import Depends
 from pydantic import BaseModel
 
 from src.config import ConfigTemplate, get_config
-from src.exceptions.exception import ServiceException, ErrCode
+from src.exceptions.exception import ErrCode, ServiceException
 from src.utils.auth import JWK
 from src.utils.http_client import HttpClient, get_http_client
 

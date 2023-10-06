@@ -2,9 +2,9 @@ import uuid
 from unittest.mock import Mock
 
 import pytest
-from fastapi import HTTPException, File, UploadFile
+from fastapi import File, HTTPException, UploadFile
 
-from src.models.model import User, Image
+from src.models.model import Image, User
 from src.repositories.image import ImageRepository
 from src.repositories.user import UserRepository
 from src.service.user import UserService

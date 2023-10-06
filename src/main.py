@@ -1,32 +1,14 @@
-from fastapi import FastAPI, Request, status, HTTPException
+from fastapi import FastAPI, Request, status
 from fastapi.encoders import jsonable_encoder
 from starlette.responses import JSONResponse
 
-from src.api import (
-    user,
-    oauth,
-    performance,
-    performance_content,
-    schedule,
-    casting,
-    booking,
-    seat,
-    area,
-    pre_booking,
-)
+from src.api.routes import apis
 from src.exceptions.exception import ServiceException
 
 app = FastAPI()
-app.include_router(user.router)
-app.include_router(oauth.router)
-app.include_router(performance.router)
-app.include_router(performance_content.router)
-app.include_router(casting.router)
-app.include_router(schedule.router)
-app.include_router(booking.router)
-app.include_router(seat.router)
-app.include_router(area.router)
-app.include_router(pre_booking.router)
+
+for api in apis:
+    app.include_router(api.router)
 
 
 @app.exception_handler(ValueError)

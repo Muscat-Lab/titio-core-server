@@ -4,8 +4,8 @@ import pytest
 
 from src.models.model import Performance
 from src.repositories.performance import PerformanceRepository
-from tests.fixture.performance import default_performance
 from tests.conftest import session
+from tests.fixture.performance import default_performance
 
 
 class TestPerformanceRepository:

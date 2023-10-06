@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
+from typing import Any, Dict, Optional
 
 import aiohttp
-from typing import Any, Dict, Optional
 
 
 class HttpClient(ABC):

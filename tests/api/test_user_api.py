@@ -3,8 +3,8 @@ from unittest.mock import Mock
 import pytest
 from fastapi import File
 
-from src.api.user import user_me_handler, UserMeResponse, user_avatar_image_handler
-from src.models.model import User, Image
+from src.api.user import UserMeResponse, user_avatar_image_handler, user_me_handler
+from src.models.model import Image, User
 from src.service.user import UserService
 from tests.api.api_fixture import default_user
 

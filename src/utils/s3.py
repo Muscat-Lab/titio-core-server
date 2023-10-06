@@ -3,8 +3,8 @@ from typing import BinaryIO
 
 import aioboto3
 from aioboto3.session import Session
-from PIL import Image as PILImage
 from fastapi import Depends
+from PIL import Image as PILImage
 
 from src.config import ConfigTemplate, get_config
 from src.models.model import Image
@@ -64,7 +64,6 @@ class S3Util:
 
         # 파일 포인터를 다시 처음으로 이동
         file.seek(0)
-
 
     async def get_presigned_url_by_path(
         self,

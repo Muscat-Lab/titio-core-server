@@ -3,20 +3,20 @@ import uuid
 from typing import List
 
 from sqlalchemy import (
-    Uuid,
-    String,
-    Date,
     Boolean,
+    Computed,
+    Date,
     DateTime,
     Float,
-    Integer,
     ForeignKey,
+    Integer,
+    String,
     Text,
-    UniqueConstraint,
     Time,
-    Computed,
+    UniqueConstraint,
+    Uuid,
 )
-from sqlalchemy.orm import mapped_column, relationship, Mapped
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from .base import Base
 

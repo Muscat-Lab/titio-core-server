@@ -2,9 +2,9 @@ import time
 from typing import Annotated
 from uuid import UUID
 
-from fastapi import HTTPException, status, Depends
+from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
-from jose import jwt, JWTError
+from jose import JWTError, jwt
 
 from src.config import config
 

@@ -1,20 +1,17 @@
 import logging
+from urllib.parse import urlencode, urlparse, urlunparse
 
 import jwt
-
-from urllib.parse import urlencode, urlunparse, urlparse
 from fastapi import Depends
 from pydantic import BaseModel
 
 from src.auth.jwt_handler import create_access_token
-from src.config import get_config, ConfigTemplate
-from src.exceptions.exception import ServiceException, ErrCode
+from src.config import ConfigTemplate, get_config
+from src.exceptions.exception import ErrCode, ServiceException
 from src.models.model import User
 from src.repositories.user import UserRepository
-from src.service.http import KakaoOauthTokenRequest, HttpService
-from src.utils.auth import jwk_to_pem, JWK
-
-import logging
+from src.service.http import HttpService, KakaoOauthTokenRequest
+from src.utils.auth import JWK, jwk_to_pem
 
 # 로깅 설정
 logging.basicConfig(level=logging.INFO)

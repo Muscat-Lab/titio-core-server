@@ -3,7 +3,7 @@ from uuid import UUID
 
 from fastapi import APIRouter, Depends
 
-from src.api.request import ResponseBase, ListRequestBase, ListResponseBase
+from src.api.request import ListRequestBase, ListResponseBase, ResponseBase
 
 router = APIRouter(prefix="/castings", tags=["casting"])
 
