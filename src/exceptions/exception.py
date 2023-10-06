@@ -1,8 +1,4 @@
 import enum
-import json
-
-from fastapi import HTTPException, Request
-from fastapi.responses import JSONResponse
 
 
 class ErrCode(str, enum.Enum):
@@ -16,7 +12,9 @@ class ErrCode(str, enum.Enum):
     def message(self):
         return {
             ErrCode.HttpClientError: "HTTP 요청 중 에러가 발생했습니다.",
-            ErrCode.KakaoUnknownError: "카카오 API 서버에서 알 수 없는 에러가 발생했습니다.",
+            ErrCode.KakaoUnknownError: (
+                "카카오 API 서버에서 알 수 없는 에러가 발생했습니다."
+            ),
             ErrCode.KakaoTokenExpired: "카카오 토큰이 만료되었습니다.",
             ErrCode.KakaoTokenVerifyError: "카카오 토큰 검증 중 에러가 발생했습니다.",
             ErrCode.KakaoTokenVerifyFailed: "카카오 토큰 검증에 실패했습니다.",

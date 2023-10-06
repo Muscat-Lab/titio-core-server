@@ -22,7 +22,10 @@ async def login(
     if not verify_password(form_data.password, user.password):
         raise HTTPException(status_code=400, detail="Incorrect username or password")
 
-    return {"access_token": create_access_token(str(user.id)), "token_type": "bearer"}
+    return {
+        "access_token": create_access_token(str(user.id)),
+        "token_type": "bearer",
+    }
 
 
 @router.get("/kakao/callback")

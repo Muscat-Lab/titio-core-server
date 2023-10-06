@@ -62,7 +62,9 @@ def upgrade() -> None:
         sa.Column("created_at", sa.DateTime(timezone=True), nullable=False),
         sa.Column("updated_at", sa.DateTime(timezone=True), nullable=False),
         sa.ForeignKeyConstraint(
-            ["performer_id"], ["performers.id"], name=op.f("castings_performer_id_fkey")
+            ["performer_id"],
+            ["performers.id"],
+            name=op.f("castings_performer_id_fkey"),
         ),
         sa.ForeignKeyConstraint(
             ["role_id"], ["roles.id"], name=op.f("castings_role_id_fkey")
@@ -94,7 +96,9 @@ def upgrade() -> None:
         sa.Column("created_at", sa.DateTime(timezone=True), nullable=False),
         sa.Column("updated_at", sa.DateTime(timezone=True), nullable=False),
         sa.ForeignKeyConstraint(
-            ["casting_id"], ["castings.id"], name=op.f("schedule_casts_casting_id_fkey")
+            ["casting_id"],
+            ["castings.id"],
+            name=op.f("schedule_casts_casting_id_fkey"),
         ),
         sa.ForeignKeyConstraint(
             ["schedule_id"],

@@ -7,8 +7,6 @@ Create Date: 2023-09-28 04:23:10.035231
 """
 from typing import Sequence, Union
 
-import sqlalchemy as sa
-
 from alembic import op
 
 # revision identifiers, used by Alembic.
@@ -59,7 +57,9 @@ def downgrade() -> None:
     op.drop_constraint(op.f("seats_seat_grade_id_fkey"), "seats", type_="foreignkey")
     op.drop_constraint(op.f("seats_area_id_fkey"), "seats", type_="foreignkey")
     op.drop_constraint(
-        op.f("seat_grades_performance_id_fkey"), "seat_grades", type_="foreignkey"
+        op.f("seat_grades_performance_id_fkey"),
+        "seat_grades",
+        type_="foreignkey",
     )
     op.drop_constraint(
         op.f("discounts_performance_id_fkey"), "discounts", type_="foreignkey"

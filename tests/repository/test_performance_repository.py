@@ -7,6 +7,8 @@ from src.repositories.performance import PerformanceRepository
 from tests.conftest import session
 from tests.fixture.performance import default_performance
 
+__all__ = ("TestPerformanceRepository", "default_performance", "session")
+
 
 class TestPerformanceRepository:
     @pytest.fixture
@@ -74,7 +76,7 @@ class TestPerformanceRepository:
 
         assert len(performances) != 0
         for performance in performances:
-            assert performance.pre_booking_enabled == True
+            assert performance.pre_booking_enabled is True
 
         performances = await performance_repository.get_performance_list(
             limit=20, pre_booking_enabled=False
@@ -82,7 +84,7 @@ class TestPerformanceRepository:
 
         assert len(performances) != 0
         for performance in performances:
-            assert performance.pre_booking_enabled == False
+            assert performance.pre_booking_enabled is False
 
     @pytest.mark.asyncio
     async def test_delete_performance(

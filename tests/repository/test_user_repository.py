@@ -4,6 +4,8 @@ from src.models.model import User
 from src.repositories.user import UserRepository
 from tests.conftest import session
 
+__all__ = ("TestUserRepository", "session")
+
 
 class TestUserRepository:
     @pytest.fixture()

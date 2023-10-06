@@ -1,5 +1,4 @@
 import datetime
-from typing import BinaryIO
 from uuid import UUID
 
 from fastapi import Depends, HTTPException, UploadFile

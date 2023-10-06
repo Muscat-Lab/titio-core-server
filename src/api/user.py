@@ -45,7 +45,8 @@ class UserMeResponse(BaseModel):
 
 @router.get("/me")
 async def user_me_handler(
-    user_service: UserService = Depends(), auth: UUID = Depends(get_current_user)
+    user_service: UserService = Depends(),
+    auth: UUID = Depends(get_current_user),
 ) -> UserMeResponse:
     return UserMeResponse.model_validate(
         await user_service.find_user_by_id(user_id=auth),

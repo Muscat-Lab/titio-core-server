@@ -14,6 +14,8 @@ from src.models.model import Performance
 from src.service.performance import PerformanceService
 from tests.fixture.performance import default_performance
 
+__all__ = ("TestPerformanceAPI", "default_performance")
+
 
 class TestPerformanceAPI:
     @pytest.fixture

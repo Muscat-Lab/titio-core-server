@@ -22,7 +22,10 @@ class SqlaEngine:
     @property
     def session(self) -> sessionmaker[Session]:
         return sessionmaker(
-            autoflush=False, autocommit=False, expire_on_commit=False, bind=self._engine
+            autoflush=False,
+            autocommit=False,
+            expire_on_commit=False,
+            bind=self._engine,
         )
 
 

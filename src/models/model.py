@@ -263,4 +263,12 @@ class Image(Base):
     extension = mapped_column(String(8), nullable=False)
 
 
-__all__ = ["User", "Area", "Performance", "Seat", "SeatGrade", "Discount", "Image"]
+__all__ = [
+    "User",
+    "Area",
+    "Performance",
+    "Seat",
+    "SeatGrade",
+    "Discount",
+    "Image",
+]

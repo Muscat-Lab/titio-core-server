@@ -7,6 +7,8 @@ from src.repositories.performance import PerformanceRepository
 from src.service.performance import PerformanceService
 from tests.fixture.performance import default_performance
 
+__all__ = ("TestPerformanceService", "default_performance")
+
 
 class TestPerformanceService:
     @pytest.fixture()
