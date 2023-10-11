@@ -32,18 +32,15 @@ async def login(
 async def kakao_login_callback_handler(
     code: str,
     kakao_login_service: KakaoLoginService = Depends(),
-):
-    return RedirectResponse(
-        url=await kakao_login_service.redirect_url_with_access_token(code),
-        status_code=status.HTTP_303_SEE_OTHER,
-    )
+) -> RedirectResponse:
+    return await kakao_login_service.redirect_with_access_token(code)
 
 
 @router.get("/kakao/init", response_model=None)
 async def kakao_login_handler(
     redirectUri: str,
     kakao_login_service: KakaoLoginService = Depends(),
-):
+) -> RedirectResponse:
     return RedirectResponse(
         url=kakao_login_service.get_oauth_authorize_url(redirectUri),
         status_code=status.HTTP_303_SEE_OTHER,

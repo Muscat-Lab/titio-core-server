@@ -2,7 +2,8 @@ import logging
 from urllib.parse import urlencode, urlparse, urlunparse
 
 import jwt
-from fastapi import Depends
+from fastapi import Depends, status
+from fastapi.responses import RedirectResponse
 from pydantic import BaseModel
 
 from src.auth.jwt_handler import create_access_token
@@ -89,10 +90,10 @@ class KakaoLoginService:
             )
         )
 
-    async def redirect_url_with_access_token(
+    async def redirect_with_access_token(
         self,
         code: str,
-    ) -> str:
+    ) -> RedirectResponse:
         try:  # 1. 인가코드를 사용해서 토큰 발급
             response = await self.http_service.get_kakao_oauth_token(
                 data=KakaoOauthTokenRequest(
@@ -137,15 +138,12 @@ class KakaoLoginService:
 
         redirect_url = urlparse(claims.redirect_uri)
 
-        return urlunparse(
-            (
-                redirect_url.scheme,
-                redirect_url.netloc,
-                redirect_url.path,
-                "",
-                urlencode({"accessToken": create_access_token(str(user.id))}),
-                "",
-            )
+        return RedirectResponse(
+            url=redirect_url.geturl(),
+            status_code=status.HTTP_303_SEE_OTHER,
+            headers={
+                "access_token": create_access_token(str(user.id)),
+            },
         )
 
     async def _verify_kakao_token(self, id_token: str) -> KakaoIdTokenClaims:

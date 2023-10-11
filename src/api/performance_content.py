@@ -2,7 +2,9 @@ from uuid import UUID
 
 from fastapi import APIRouter, Depends
 
-from src.api.request import ListRequestBase, ListResponseBase, ResponseBase
+from src.api.request import ListRequestBase, ListResponseBase, RequestBase, ResponseBase
+from src.models.model import PerformanceContent
+from src.service.performance_content import PerformanceContentService
 
 router = APIRouter(prefix="/performanceContents", tags=["performanceContent"])
 
@@ -24,21 +26,62 @@ class PerformanceContentListResponse(ListResponseBase):
 @router.get("")
 async def performance_content_list_handler(
     q: PerformanceContentListRequest = Depends(),
+    performance_content_service: PerformanceContentService = Depends(),
 ) -> PerformanceContentListResponse:
+    performance_contents = (
+        await performance_content_service.get_performance_content_list(
+            performance_id=q.performance_id,
+            limit=q.limit,
+            cursor=q.cursor,
+        )
+    )
+
     return PerformanceContentListResponse(
         performance_contents=[
-            PerformanceContentListResponse.PerformanceContent(
-                id=UUID("d1b9d1a0-0b1a-4e1a-9b1a-0b1a0b1a0b1a"),
-                performance_id=UUID("d1b9d1a0-0b1a-4e1a-9b1a-0b1a0b1a0b1a"),
-                heading="heading1",
-                content="content2",
-            ),
-            PerformanceContentListResponse.PerformanceContent(
-                id=UUID("d1b9d1a0-0b1a-4e1a-9b1a-0b1a0b1a0b1b"),
-                performance_id=UUID("d1b9d1a0-0b1a-4e1a-9b1a-0b1a0b1a0b1b"),
-                heading="heading2",
-                content="content2",
-            ),
+            PerformanceContentListResponse.PerformanceContent.model_validate(
+                performance_content, from_attributes=True
+            )
+            for performance_content in performance_contents
         ],
-        next_cursor=None,
+        next_cursor=(
+            performance_contents[-1].sequence
+            if len(performance_contents) >= q.limit
+            else None
+        ),
+    )
+
+
+class PerformanceContentSaveRequest(RequestBase):
+    performance_id: UUID
+    sequence: int
+    heading: str
+    content: str
+
+
+class PerformanceContentSaveResponse(ResponseBase):
+    performance_id: UUID
+    sequence: int
+    heading: str
+    content: str
+
+
+@router.post("")
+async def performance_content_save_handler(
+    q: PerformanceContentSaveRequest,
+    performance_content_service: PerformanceContentService = Depends(),
+) -> PerformanceContentSaveResponse:
+    performance_content = await performance_content_service.save_performance_content(
+        PerformanceContent.create(
+            performance_id=q.performance_id,
+            sequence=q.sequence,
+            heading=q.heading,
+            content=q.content,
+        )
+    )
+
+    return PerformanceContentSaveResponse(
+        performance_id=performance_content.performance_id,
+        sequence=performance_content.sequence,
+        heading=performance_content.heading,
+        content=performance_content.content,
     )

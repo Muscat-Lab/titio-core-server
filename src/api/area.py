@@ -1,8 +1,10 @@
 from uuid import UUID
 
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
 
-from src.api.request import ListRequestBase, ListResponseBase, ResponseBase
+from src.api.request import ListRequestBase, ListResponseBase, RequestBase, ResponseBase
+from src.models.model import Area
+from src.service.area import AreaService
 
 router = APIRouter(prefix="/areas", tags=["area"])
 
@@ -20,17 +22,47 @@ class AreaListResponse(ListResponseBase):
 
 
 @router.get("")
-async def area_list_handler() -> AreaListResponse:
+async def area_list_handler(
+    q: AreaListRequest = Depends(),
+    area_service: AreaService = Depends(),
+) -> AreaListResponse:
+    areas = await area_service.get_area_list(
+        performance_id=q.performance_id,
+        limit=q.limit,
+        cursor=q.cursor,
+    )
+
     return AreaListResponse(
         areas=[
-            AreaListResponse.Area(
-                id=UUID("d1b9d1a0-0b1a-4e1a-9b1a-0b1a0b1a0b1a"),
-                title="area1",
-            ),
-            AreaListResponse.Area(
-                id=UUID("d1b9d1a0-0b1a-4e1a-9b1a-0b1a0b1a0b1b"),
-                title="area2",
-            ),
+            AreaListResponse.Area.model_validate(area, from_attributes=True)
+            for area in areas
         ],
-        next_cursor=None,
+        next_cursor=areas[-1].latest_cursor if len(areas) >= q.limit else None,
     )
+
+
+class AreaSaveRequest(RequestBase):
+    performance_id: UUID
+    title: str
+
+    @property
+    def model(self) -> Area:
+        return Area.create(
+            performance_id=self.performance_id,
+            title=self.title,
+        )
+
+
+class AreaSaveResponse(ResponseBase):
+    performance_id: UUID
+    title: str
+
+
+@router.post("")
+async def area_save_handler(
+    q: AreaSaveRequest = Depends(),
+    area_service: AreaService = Depends(),
+) -> AreaSaveResponse:
+    area = await area_service.save_area(area=q.model)
+
+    return AreaSaveResponse.model_validate(area, from_attributes=True)

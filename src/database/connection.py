@@ -10,10 +10,7 @@ class SqlaEngine:
         self,
         config: ConfigTemplate,
     ) -> None:
-        self._engine = create_engine(
-            config.db_uri,
-            logging_name="sa_logger",
-        )
+        self._engine = create_engine(config.db_uri, logging_name="sa_logger")
 
     @property
     def engine(self) -> Engine:
