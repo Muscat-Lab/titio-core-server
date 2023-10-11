@@ -5,9 +5,12 @@ from src.api import (
     oauth,
     performance,
     performance_content,
+    performer,
     pre_booking,
+    role,
     schedule,
     seat,
+    seat_grade,
     user,
 )
 
@@ -18,8 +21,11 @@ apis = [
     oauth,
     performance,
     performance_content,
+    performer,
     pre_booking,
+    role,
     schedule,
     seat,
+    seat_grade,
     user,
 ]

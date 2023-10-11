@@ -34,12 +34,32 @@ metadata = Base.metadata
 class Area(Base):
     __tablename__ = "areas"
 
-    id = mapped_column(Uuid, primary_key=True, index=True)
+    id = mapped_column(Uuid, primary_key=True, index=True, default=uuid.uuid4)
     performance_id = mapped_column(ForeignKey("performances.id"), nullable=False)
     title = mapped_column(String(256), nullable=False)
 
     performance: Mapped["Performance"] = relationship(back_populates="areas")
     seats: Mapped[List["Seat"]] = relationship(back_populates="area")
+
+    latest_cursor = mapped_column(
+        String(256),
+        Computed(
+            "CONCAT(created_at, ':', id)",
+        ),
+        index=True,
+        nullable=False,
+    )
+
+    @classmethod
+    def create(
+        cls,
+        performance_id: uuid.UUID,
+        title: str,
+    ) -> "Area":
+        return cls(
+            performance_id=performance_id,
+            title=title,
+        )
 
 
 class Performance(Base):
@@ -61,6 +81,8 @@ class Performance(Base):
     contents: Mapped[List["PerformanceContent"]] = relationship(
         back_populates="performance"
     )
+    roles: Mapped[List["Role"]] = relationship(back_populates="performance")
+    castings: Mapped[List["Casting"]] = relationship(back_populates="performance")
 
     latest_cursor = mapped_column(
         String(256),
@@ -111,6 +133,21 @@ class PerformanceContent(Base):
 
     performance: Mapped["Performance"] = relationship(back_populates="contents")
 
+    @classmethod
+    def create(
+        cls,
+        performance_id: uuid.UUID,
+        sequence: int,
+        heading: str,
+        content: str,
+    ) -> "PerformanceContent":
+        return cls(
+            performance_id=performance_id,
+            sequence=sequence,
+            heading=heading,
+            content=content,
+        )
+
 
 class Location(Base):
     __tablename__ = "locations"
@@ -130,9 +167,20 @@ class Performer(Base):
 
     id = mapped_column(Uuid, primary_key=True, index=True, default=uuid.uuid4)
     name = mapped_column(String(20), nullable=False)
-    description = mapped_column(Text, nullable=False)
+    description = mapped_column(Text, nullable=True)
 
     castings: Mapped[List["Casting"]] = relationship(back_populates="performer")
+
+    @classmethod
+    def create(
+        cls,
+        name: str,
+        description: str | None = None,
+    ) -> "Performer":
+        return cls(
+            name=name,
+            description=description,
+        )
 
 
 class Role(Base):
@@ -140,20 +188,48 @@ class Role(Base):
 
     id = mapped_column(Uuid, primary_key=True, index=True, default=uuid.uuid4)
     name = mapped_column(String(20), nullable=False)
+    performance_id = mapped_column(ForeignKey("performances.id"), nullable=False)
 
+    performance: Mapped["Performance"] = relationship(back_populates="roles")
     castings: Mapped[List["Casting"]] = relationship(back_populates="role")
+
+    @classmethod
+    def create(
+        cls,
+        performance_id: uuid.UUID,
+        name: str,
+    ) -> "Role":
+        return cls(
+            performance_id=performance_id,
+            name=name,
+        )
 
 
 class Casting(Base):
     __tablename__ = "castings"
 
     id = mapped_column(Uuid, primary_key=True, index=True, default=uuid.uuid4)
+    performance_id = mapped_column(ForeignKey("performances.id"), nullable=False)
     performer_id = mapped_column(ForeignKey("performers.id"), nullable=False)
     role_id = mapped_column(ForeignKey("roles.id"), nullable=False)
 
+    performance: Mapped["Performance"] = relationship(back_populates="castings")
     performer: Mapped["Performer"] = relationship(back_populates="castings")
     role: Mapped["Role"] = relationship(back_populates="castings")
     schedules: Mapped[List["ScheduleCasting"]] = relationship(back_populates="casting")
+
+    @classmethod
+    def create(
+        cls,
+        performance_id: uuid.UUID,
+        performer_id: uuid.UUID,
+        role_id: uuid.UUID,
+    ) -> "Casting":
+        return cls(
+            performance_id=performance_id,
+            performer_id=performer_id,
+            role_id=role_id,
+        )
 
 
 class Schedule(Base):
@@ -167,6 +243,19 @@ class Schedule(Base):
     castings: Mapped[List["ScheduleCasting"]] = relationship(back_populates="schedule")
     performance: Mapped["Performance"] = relationship(back_populates="schedules")
 
+    @classmethod
+    def create(
+        cls,
+        performance_id: uuid.UUID,
+        date: datetime.date,
+        time: datetime.time,
+    ) -> "Schedule":
+        return cls(
+            performance_id=performance_id,
+            date=date,
+            time=time,
+        )
+
 
 class ScheduleCasting(Base):
     __tablename__ = "schedule_casts"
@@ -178,37 +267,88 @@ class ScheduleCasting(Base):
     schedule: Mapped["Schedule"] = relationship(back_populates="castings")
     casting: Mapped["Casting"] = relationship(back_populates="schedules")
 
+    @classmethod
+    def create(
+        cls,
+        schedule_id: uuid.UUID,
+        casting_id: uuid.UUID,
+    ) -> "ScheduleCasting":
+        return cls(
+            schedule_id=schedule_id,
+            casting_id=casting_id,
+        )
+
 
 class Seat(Base):
     __tablename__ = "seats"
 
-    id = mapped_column(Uuid, primary_key=True, index=True)
+    id = mapped_column(Uuid, primary_key=True, index=True, default=uuid.uuid4)
     area_id = mapped_column(ForeignKey("areas.id"), nullable=False)
     seat_grade_id = mapped_column(ForeignKey("seat_grades.id"), nullable=False)
     x = mapped_column(Float, nullable=False)
     y = mapped_column(Float, nullable=False)
     row = mapped_column(Integer, nullable=False)
     col = mapped_column(Integer, nullable=False)
+    name = mapped_column(String(30), nullable=False)
 
     area: Mapped["Area"] = relationship(back_populates="seats")
+    seat_grade: Mapped["SeatGrade"] = relationship(back_populates="seats")
+
+    row_col_cursor = mapped_column(
+        Integer,
+        Computed(
+            "(`row` * 10000) + `col`",
+        ),
+        index=True,
+        nullable=False,
+    )
+
+    @classmethod
+    def create(cls, area_id, x, y, row, col, name, seat_grade_id) -> "Seat":
+        return cls(
+            area_id=area_id,
+            x=x,
+            y=y,
+            row=row,
+            col=col,
+            name=name,
+            seat_grade_id=seat_grade_id,
+        )
 
 
 class SeatGrade(Base):
     __tablename__ = "seat_grades"
 
-    id = mapped_column(Uuid, primary_key=True, index=True)
+    id = mapped_column(Uuid, primary_key=True, index=True, default=uuid.uuid4)
     performance_id = mapped_column(ForeignKey("performances.id"), nullable=False)
-    discount_id = mapped_column(Uuid, nullable=False)
     name = mapped_column(String(30), nullable=False)
     price = mapped_column(Integer, nullable=False)
 
+    latest_cursor = mapped_column(
+        String(256),
+        Computed(
+            "CONCAT(created_at, ':', id)",
+        ),
+        index=True,
+        nullable=False,
+    )
+
     performance: Mapped["Performance"] = relationship(back_populates="seat_grades")
+    seats: Mapped[List["Seat"]] = relationship(back_populates="seat_grade")
+
+    @classmethod
+    def create(cls, performance_id, name, price) -> "SeatGrade":
+        return cls(
+            performance_id=performance_id,
+            name=name,
+            price=price,
+        )
 
 
 class Discount(Base):
     __tablename__ = "discounts"
 
-    id = mapped_column(Uuid, primary_key=True, index=True)
+    id = mapped_column(Uuid, primary_key=True, index=True, default=uuid.uuid4)
     performance_id = mapped_column(ForeignKey("performances.id"), nullable=False)
     name = mapped_column(String(30), nullable=False)
     discount_rate = mapped_column(Float, nullable=False)
@@ -271,4 +411,11 @@ __all__ = [
     "SeatGrade",
     "Discount",
     "Image",
+    "PerformanceContent",
+    "Schedule",
+    "Performer",
+    "Role",
+    "Casting",
+    "ScheduleCasting",
+    "Location",
 ]

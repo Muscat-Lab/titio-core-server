@@ -108,13 +108,9 @@ class TestKakaoLoginService:
             },
         )
 
-        redirect_url = await kakao_login_service.redirect_url_with_access_token(
+        redirect_response = await kakao_login_service.redirect_with_access_token(
             code="test_code",
         )
 
-        parsed_url = urlparse(redirect_url)
-
-        assert parsed_url.scheme == "https"
-        assert parsed_url.netloc == "tito.kr"
-        assert parsed_url.path == "/main"
-        assert "accessToken" in parsed_url.query
+        assert redirect_response.status_code == 303
+        assert redirect_response.headers["Location"] == "https://tito.kr/main"

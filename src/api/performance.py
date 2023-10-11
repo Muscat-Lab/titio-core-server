@@ -47,7 +47,9 @@ async def performance_list_handler(
             )
             for performance in performances
         ],
-        next_cursor=performances[-1].latest_cursor if performances else None,
+        next_cursor=(
+            performances[-1].latest_cursor if len(performances) >= q.limit else None
+        ),
     )
 
 

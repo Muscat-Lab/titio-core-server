@@ -1,5 +1,6 @@
 from fastapi import FastAPI, Request, status
 from fastapi.encoders import jsonable_encoder
+from pydantic import ValidationError
 from starlette.responses import JSONResponse
 
 from src.api.routes import apis
@@ -11,8 +12,8 @@ for api in apis:
     app.include_router(api.router)
 
 
-@app.exception_handler(ValueError)
-async def validation_exception_handler(request: Request, exc: ValueError):
+@app.exception_handler(ValidationError)
+async def validation_exception_handler(request: Request, exc: ValidationError):
     return JSONResponse(
         status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
         content=jsonable_encoder({"detail": exc.errors()}),
