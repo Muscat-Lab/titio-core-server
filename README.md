@@ -9,8 +9,8 @@
 ## 프로젝트 시작하기
 
 ```bash
-git clone https://github.com/Muscat-Lab/TITO_Backend.git
-cd TITO_Backend
+git clone https://github.com/Muscat-Lab/TITO_CORE_API.git
+cd TITO_CORE_API
 ```
 
 ## 로컬에서 서버를 실행하는 방법
