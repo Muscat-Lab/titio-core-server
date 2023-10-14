@@ -1,4 +1,5 @@
 import pytest
+import pytest_asyncio
 from fastapi.testclient import TestClient
 
 from src.config import ConfigTemplate
@@ -43,3 +44,18 @@ def session(db):
     finally:
         session.rollback()
         session.close()
+
+
+@pytest_asyncio.fixture(autouse=True, name="redis")
+async def redis():
+    from src.database.connection import Redis
+
+    redis = Redis(ConfigTemplate())
+    redis_client = redis.client()
+
+    try:
+        yield redis_client
+    finally:
+        await redis_client.flushdb()
+        await redis_client.aclose()
+        await redis.pool.disconnect()

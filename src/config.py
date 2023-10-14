@@ -20,6 +20,8 @@ class ConfigTemplate(BaseSettings):
 
     MAX_UPLOAD_IMAGE_SIZE: int = 1024 * 1024 * 10  # 10MB
 
+    REDIS_URI: str = "redis://redis:6379/0"
+
     @property
     def db_uri(self) -> str:
         return (

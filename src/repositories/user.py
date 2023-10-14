@@ -5,7 +5,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from src.database.connection import get_db
-from src.models.model import User
+from src.models.model import User, UserPerformerLike
 
 
 class UserRepository:
@@ -38,3 +38,14 @@ class UserRepository:
 
     def find_user_by_username(self, username: str) -> User | None:
         return self.session.scalar(select(User).where(User.username == username))
+
+    async def like_performers(self, performer_ids: list[UUID], user_id: UUID) -> None:
+        for performer_id in performer_ids:
+            self.session.add(
+                instance=UserPerformerLike(
+                    user_id=user_id,
+                    performer_id=performer_id,
+                )
+            )
+
+        self.session.commit()

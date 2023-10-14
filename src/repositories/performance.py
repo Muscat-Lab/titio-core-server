@@ -2,7 +2,7 @@ from uuid import UUID
 
 from fastapi import Depends
 from sqlalchemy import select
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 
 from src.database.connection import get_db
 from src.models.model import Performance
@@ -25,7 +25,7 @@ class PerformanceRepository:
         cursor: str | None = None,
         pre_booking_enabled: bool | None = None,
     ) -> list[Performance]:
-        query = select(Performance)
+        query = select(Performance).options(joinedload(Performance.poster_image))
 
         if pre_booking_enabled is not None:
             query = query.where(Performance.pre_booking_enabled == pre_booking_enabled)

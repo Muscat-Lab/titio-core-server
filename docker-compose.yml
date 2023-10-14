@@ -56,7 +56,6 @@ services:
     command: -c 'mkdir -p /data/dev && minio server --console-address :9001 /data'
 
 
-
 volumes:
   mysql_data:
     external: false
@@ -64,4 +63,3 @@ volumes:
     external: false
   minio_data:
     external: false
-

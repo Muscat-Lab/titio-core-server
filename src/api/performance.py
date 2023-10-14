@@ -1,7 +1,7 @@
 import datetime
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends, File, Query, UploadFile
 from pydantic import Field
 
 from src.api.request import ListRequestBase, ListResponseBase, RequestBase, ResponseBase
@@ -25,6 +25,7 @@ class PerformanceListResponse(ListResponseBase):
         end: datetime.date
         pre_booking_enabled: bool
         pre_booking_closed_at: datetime.datetime | None = None
+        poster_image_url: str | None = None
 
     performances: list[Performance]
 
@@ -92,6 +93,26 @@ async def performance_create_handler(
             )
         ),
         from_attributes=True,
+    )
+
+
+class PerformancePosterImageResponse(ResponseBase):
+    poster_image_url: str
+
+
+@router.post("/{performanceId}/poster_image")
+async def performance_poster_image_create_handler(
+    performanceId: UUID,
+    poster_image: UploadFile = File(),
+    performance_service: PerformanceService = Depends(),
+) -> PerformancePosterImageResponse:
+    uploaded_url = await performance_service.upload_poster_image(
+        performance_id=performanceId,
+        file=poster_image,
+    )
+
+    return PerformancePosterImageResponse(
+        poster_image_url=uploaded_url,
     )
 
 

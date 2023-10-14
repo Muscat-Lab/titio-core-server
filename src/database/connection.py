@@ -1,3 +1,4 @@
+import redis.asyncio as async_redis
 from fastapi import Depends
 from sqlalchemy import Engine, create_engine
 from sqlalchemy.orm import Session, sessionmaker
@@ -37,3 +38,27 @@ def get_db(
         yield session
     finally:
         session.close()
+
+
+class Redis:
+    def __init__(
+        self,
+        config: ConfigTemplate,
+    ) -> None:
+        self.pool = async_redis.ConnectionPool.from_url(config.REDIS_URI)
+
+    def client(self) -> async_redis.Redis:
+        return async_redis.Redis(connection_pool=self.pool)
+
+
+async def get_redis(
+    config: ConfigTemplate = Depends(get_config),
+):
+    redis_client = Redis(config).client()
+
+    if redis_client is None:
+        raise Exception("redis is not connected")
+    try:
+        yield redis_client
+    finally:
+        await redis_client.aclose()
