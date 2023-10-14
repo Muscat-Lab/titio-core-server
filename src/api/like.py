@@ -24,7 +24,7 @@ class LikeChoiceListResponse(ListResponseBase):
 async def like_choices_handler(
     q: LikeChoiceListRequest = Depends(),
     like_service: LikeService = Depends(),
-):
+) -> LikeChoiceListResponse:
     return LikeChoiceListResponse(
         choices=[
             LikeChoiceSchema.model_validate(
