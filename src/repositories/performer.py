@@ -1,6 +1,6 @@
 from fastapi import Depends
 from sqlalchemy import select
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 
 from src.database.connection import get_db
 from src.models.model import Performer
@@ -23,6 +23,22 @@ class PerformerRepository:
         query = query.order_by(Performer.created_at.desc()).limit(limit)
 
         return list(self.session.execute(query).scalars().all())
+
+    async def get_performer_list_with_like_count(
+        self,
+        limit: int,
+        cursor: str | None = None,  # Performer.id
+    ) -> list[Performer]:
+        query = select(Performer).options(
+            joinedload(Performer.users),
+        )
+
+        if cursor is not None:
+            query = query.where(Performer.id < cursor)
+
+        query = query.order_by(Performer.id.desc()).limit(limit)
+
+        return list(self.session.execute(query).unique().scalars().all())
 
     async def save_performer(self, performer: Performer) -> Performer:
         self.session.add(performer)

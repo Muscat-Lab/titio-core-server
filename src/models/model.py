@@ -16,6 +16,7 @@ from sqlalchemy import (
     UniqueConstraint,
     Uuid,
 )
+from sqlalchemy.dialects.mysql import JSON
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from .base import Base
@@ -73,6 +74,7 @@ class Performance(Base):
     end = mapped_column(Date, nullable=False)
     pre_booking_enabled = mapped_column(Boolean, nullable=False)
     pre_booking_closed_at = mapped_column(DateTime(timezone=True), nullable=True)
+    poster_image_id = mapped_column(ForeignKey("images.id"), nullable=True)
 
     areas: Mapped[List["Area"]] = relationship(back_populates="performance")
     seat_grades: Mapped[List["SeatGrade"]] = relationship(back_populates="performance")
@@ -83,6 +85,14 @@ class Performance(Base):
     )
     roles: Mapped[List["Role"]] = relationship(back_populates="performance")
     castings: Mapped[List["Casting"]] = relationship(back_populates="performance")
+    poster_image: Mapped["Image"] = relationship(
+        "Image",
+        foreign_keys=[poster_image_id],
+        backref="performances",
+    )
+    like_users: Mapped[List["User"]] = relationship(
+        secondary="user_performance_likes", back_populates="like_performances"
+    )
 
     latest_cursor = mapped_column(
         String(256),
@@ -92,6 +102,8 @@ class Performance(Base):
         index=True,
         nullable=False,
     )
+
+    genre_idents = mapped_column(JSON, nullable=False, default=[])
 
     @classmethod
     def create(
@@ -112,6 +124,18 @@ class Performance(Base):
             end=end,
             pre_booking_enabled=pre_booking_enabled,
             pre_booking_closed_at=pre_booking_closed_at,
+        )
+
+    @property
+    def poster_image_url(self) -> str | None:
+        if self.poster_image is None:
+            return None
+
+        from src.config import get_config
+        from src.utils.image import get_presigned_url_by_path
+
+        return get_presigned_url_by_path(
+            config=get_config(), path=self.poster_image.path
         )
 
 
@@ -168,8 +192,19 @@ class Performer(Base):
     id = mapped_column(Uuid, primary_key=True, index=True, default=uuid.uuid4)
     name = mapped_column(String(20), nullable=False)
     description = mapped_column(Text, nullable=True)
+    profile_image_id = mapped_column(ForeignKey("images.id"), nullable=True)
 
     castings: Mapped[List["Casting"]] = relationship(back_populates="performer")
+
+    users: Mapped[List["User"]] = relationship(
+        secondary="user_performer_likes", back_populates="like_performers"
+    )
+
+    profile_image: Mapped["Image"] = relationship(
+        "Image",
+        foreign_keys=[profile_image_id],
+        backref="performers",
+    )
 
     @classmethod
     def create(
@@ -180,6 +215,24 @@ class Performer(Base):
         return cls(
             name=name,
             description=description,
+        )
+
+    @property
+    def like_count(self) -> int:
+        return len(self.users)
+
+    @property
+    def profile_image_url(self) -> str | None:
+        if self.profile_image is None:
+            return None
+
+        from src.config import get_config
+        from src.utils.image import get_presigned_url_by_path
+
+        return get_presigned_url_by_path(
+            config=get_config(),
+            path=self.profile_image.path,
+            expires_in=60 * 60 * 24 * 7,
         )
 
 
@@ -383,6 +436,18 @@ class User(Base):
         backref="users",
     )
 
+    like_performances: Mapped[List["Performance"]] = relationship(
+        secondary="user_performance_likes", back_populates="like_users"
+    )
+
+    like_performers: Mapped[List["Performer"]] = relationship(
+        secondary="user_performer_likes", back_populates="users"
+    )
+
+    like_genres: Mapped[List["Genre"]] = relationship(
+        secondary="user_genre_likes", back_populates="users"
+    )
+
     @classmethod
     def create(cls, email: str, password: str, username: str | None = None) -> "User":
         if username is None:
@@ -401,6 +466,66 @@ class Image(Base):
     id = mapped_column(Uuid, primary_key=True, index=True, default=uuid.uuid4)
     path = mapped_column(String(256), nullable=False)
     extension = mapped_column(String(8), nullable=False)
+
+
+class Genre(Base):
+    __tablename__ = "genres"
+
+    id = mapped_column(Uuid, primary_key=True, index=True, default=uuid.uuid4)
+    name = mapped_column(String(30), nullable=False)
+    ident = mapped_column(String(30), nullable=False)
+
+    users: Mapped[List["User"]] = relationship(
+        secondary="user_genre_likes", back_populates="like_genres"
+    )
+
+    @property
+    def like_count(self) -> int:
+        return len(self.users)
+
+
+class UserPerformanceLike(Base):
+    __tablename__ = "user_performance_likes"
+
+    user_id = mapped_column(ForeignKey("users.id"), primary_key=True)
+    performance_id = mapped_column(ForeignKey("performances.id"), primary_key=True)
+
+    @classmethod
+    def create(
+        cls, user_id: uuid.UUID, performance_id: uuid.UUID
+    ) -> "UserPerformanceLike":
+        return cls(
+            user_id=user_id,
+            performance_id=performance_id,
+        )
+
+
+class UserPerformerLike(Base):
+    __tablename__ = "user_performer_likes"
+
+    user_id = mapped_column(ForeignKey("users.id"), primary_key=True)
+    performer_id = mapped_column(ForeignKey("performers.id"), primary_key=True)
+
+    @classmethod
+    def create(cls, user_id: uuid.UUID, performer_id: uuid.UUID) -> "UserPerformerLike":
+        return cls(
+            user_id=user_id,
+            performer_id=performer_id,
+        )
+
+
+class UserGenreLike(Base):
+    __tablename__ = "user_genre_likes"
+
+    user_id = mapped_column(ForeignKey("users.id"), primary_key=True)
+    genre_id = mapped_column(ForeignKey("genres.id"), primary_key=True)
+
+    @classmethod
+    def create(cls, user_id: uuid.UUID, genre_id: uuid.UUID) -> "UserGenreLike":
+        return cls(
+            user_id=user_id,
+            genre_id=genre_id,
+        )
 
 
 __all__ = [

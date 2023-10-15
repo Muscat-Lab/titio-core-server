@@ -1,5 +1,6 @@
 from fastapi import FastAPI, Request, status
 from fastapi.encoders import jsonable_encoder
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import ValidationError
 from starlette.responses import JSONResponse
 
@@ -7,6 +8,15 @@ from src.api.routes import apis
 from src.exceptions.exception import ServiceException
 
 app = FastAPI()
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=False,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 
 for api in apis:
     app.include_router(api.router)
