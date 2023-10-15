@@ -5,7 +5,7 @@ from starlette.responses import JSONResponse
 
 from src.api.routes import apis
 from src.exceptions.exception import ServiceException
-
+from fastapi.middleware.cors import CORSMiddleware
 app = FastAPI()
 
 for api in apis:
@@ -31,6 +31,14 @@ async def http_exception_handler(request: Request, exc: ServiceException):
             }
         ),
     )
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 
 @app.get("/")
