@@ -11,7 +11,6 @@ app = FastAPI()
 for api in apis:
     app.include_router(api.router)
 
-
 @app.exception_handler(ValidationError)
 async def validation_exception_handler(request: Request, exc: ValidationError):
     return JSONResponse(
@@ -32,15 +31,16 @@ async def http_exception_handler(request: Request, exc: ServiceException):
         ),
     )
 
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
-
 
 @app.get("/")
 def health_check_handler():
     return {"ping": "pong"}
+
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=False,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
