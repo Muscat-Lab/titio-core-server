@@ -16,6 +16,7 @@ from sqlalchemy import (
     UniqueConstraint,
     Uuid,
 )
+from sqlalchemy.dialects.mysql import JSON
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from .base import Base
@@ -101,6 +102,8 @@ class Performance(Base):
         index=True,
         nullable=False,
     )
+
+    genre_idents = mapped_column(JSON, nullable=False, default=[])
 
     @classmethod
     def create(
@@ -470,6 +473,7 @@ class Genre(Base):
 
     id = mapped_column(Uuid, primary_key=True, index=True, default=uuid.uuid4)
     name = mapped_column(String(30), nullable=False)
+    ident = mapped_column(String(30), nullable=False)
 
     users: Mapped[List["User"]] = relationship(
         secondary="user_genre_likes", back_populates="like_genres"

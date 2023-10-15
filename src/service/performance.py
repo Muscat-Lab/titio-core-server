@@ -28,9 +28,13 @@ class PerformanceService:
         limit: int,
         cursor: str | None = None,
         pre_booking_enabled: bool | None = None,
+        genre_ident: str | None = None,
     ):
         return await self.performance_repository.get_performance_list(
-            limit=limit, cursor=cursor, pre_booking_enabled=pre_booking_enabled
+            limit=limit,
+            cursor=cursor,
+            pre_booking_enabled=pre_booking_enabled,
+            genre_ident=genre_ident,
         )
 
     async def delete_performance(self, performance_id):

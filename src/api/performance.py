@@ -13,6 +13,7 @@ router = APIRouter(prefix="/performances", tags=["performance"])
 
 class PerformanceListRequest(ListRequestBase):
     pre_booking_enabled: bool | None = Query(None)
+    genre_ident: str | None = Query(None)
 
 
 class PerformanceListResponse(ListResponseBase):
@@ -39,6 +40,7 @@ async def performance_list_handler(
         limit=q.limit,
         cursor=q.cursor,
         pre_booking_enabled=q.pre_booking_enabled,
+        genre_ident=q.genre_ident,
     )
 
     return PerformanceListResponse(

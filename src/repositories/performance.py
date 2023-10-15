@@ -24,11 +24,15 @@ class PerformanceRepository:
         limit: int,
         cursor: str | None = None,
         pre_booking_enabled: bool | None = None,
+        genre_ident: str | None = None,
     ) -> list[Performance]:
         query = select(Performance).options(joinedload(Performance.poster_image))
 
         if pre_booking_enabled is not None:
             query = query.where(Performance.pre_booking_enabled == pre_booking_enabled)
+
+        if genre_ident is not None:
+            query = query.where(Performance.genre_idents.contains([genre_ident]))
 
         if cursor is not None:
             query = query.where(Performance.created_at < cursor)
