@@ -6,7 +6,7 @@ from starlette.responses import JSONResponse
 
 from src.api.routes import apis
 from src.exceptions.exception import ServiceException
-from fastapi.middleware.cors import CORSMiddleware
+
 app = FastAPI()
 
 app.add_middleware(
@@ -20,6 +20,7 @@ app.add_middleware(
 
 for api in apis:
     app.include_router(api.router)
+
 
 @app.exception_handler(ValidationError)
 async def validation_exception_handler(request: Request, exc: ValidationError):
