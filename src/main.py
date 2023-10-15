@@ -45,12 +45,3 @@ async def http_exception_handler(request: Request, exc: ServiceException):
 @app.get("/")
 def health_check_handler():
     return {"ping": "pong"}
-
-
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=False,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
