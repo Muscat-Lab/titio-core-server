@@ -1,7 +1,15 @@
-from pydantic.v1 import BaseSettings
+import os.path
+
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class ConfigTemplate(BaseSettings):
+    model_config = SettingsConfigDict(
+        env_file=os.path.expandvars(".env"),
+        env_file_encoding="utf-8",
+        env_prefix="APP_",
+    )
+
     DATABASE_USER: str = "user"
     DATABASE_PASSWORD: str = "user1234"
     DATABASE_HOST: str = "localhost"
@@ -28,11 +36,6 @@ class ConfigTemplate(BaseSettings):
             f"mysql+pymysql://{self.DATABASE_USER}:{self.DATABASE_PASSWORD}@"
             f"{self.DATABASE_HOST}:{self.DATABASE_PORT}/{self.DATABASE_NAME}"
         )
-
-    class Config:
-        env_file = ".env"
-        env_file_encoding = "utf-8"
-        env_prefix = "APP_"
 
 
 config = ConfigTemplate()

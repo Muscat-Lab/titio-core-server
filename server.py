@@ -3,7 +3,7 @@ import logging
 
 import uvicorn
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     parse = argparse.ArgumentParser()
 
     parse.add_argument("--host", type=str, default="0.0.0.0")

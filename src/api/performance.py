@@ -5,6 +5,7 @@ from fastapi import APIRouter, Depends, File, Query, UploadFile
 from pydantic import Field
 
 from src.api.request import ListRequestBase, ListResponseBase, RequestBase, ResponseBase
+from src.auth.jwt_handler import get_current_user
 from src.models.model import Performance
 from src.service.performance import PerformanceService
 
@@ -154,5 +155,27 @@ async def performance_delete_handler(
     performance_service: PerformanceService = Depends(),
 ) -> ResponseBase:
     await performance_service.delete_performance(performanceId)
+
+    return ResponseBase()
+
+
+@router.post("/{performanceId}/like")
+async def performance_like_handler(
+    performanceId: UUID,
+    performance_service: PerformanceService = Depends(),
+    user_id: UUID = Depends(get_current_user),
+) -> ResponseBase:
+    await performance_service.like_performance(performanceId, user_id)
+
+    return ResponseBase()
+
+
+@router.delete("/{performanceId}/like")
+async def performance_unlike_handler(
+    performanceId: UUID,
+    performance_service: PerformanceService = Depends(),
+    user_id: UUID = Depends(get_current_user),
+) -> ResponseBase:
+    await performance_service.unlike_performance(performanceId, user_id)
 
     return ResponseBase()

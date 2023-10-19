@@ -4,17 +4,23 @@ import pytest
 
 from src.models.model import Performance
 from src.repositories.performance import PerformanceRepository
+from src.repositories.user import UserRepository
 from tests.conftest import session
 from tests.fixture.performance import default_performance
+from tests.fixture.user import default_user
+from tests.repository.fixture import new_user, performance_repository, user_repository
 
-__all__ = ("TestPerformanceRepository", "default_performance", "session")
+__all__ = (
+    "performance_repository",
+    "user_repository",
+    "TestPerformanceRepository",
+    "default_performance",
+    "default_user",
+    "session",
+)
 
 
 class TestPerformanceRepository:
-    @pytest.fixture
-    def performance_repository(self, session):
-        return PerformanceRepository(session=session)
-
     @pytest.mark.asyncio
     async def test_save_performance(
         self,
@@ -104,3 +110,38 @@ class TestPerformanceRepository:
         )
 
         assert deleted_performance is None
+
+    @pytest.mark.asyncio
+    async def test_like_performance(
+        self,
+        user_repository: UserRepository,
+        performance_repository: PerformanceRepository,
+        default_performance: Performance,
+    ):
+        user = await new_user(user_repository)
+
+        default_performance.like_users.append(user)
+
+        await performance_repository.save_performance(default_performance)
+
+        performance = await performance_repository.find_performance_by_id(
+            default_performance.id
+        )
+
+        if performance is None:
+            raise AssertionError
+
+        assert performance.like_users[0].id == user.id
+
+        performance.like_users.remove(user)
+
+        await performance_repository.save_performance(performance)
+
+        performance = await performance_repository.find_performance_by_id(
+            default_performance.id
+        )
+
+        if performance is None:
+            raise AssertionError
+
+        assert len(performance.like_users) == 0

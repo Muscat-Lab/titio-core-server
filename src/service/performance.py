@@ -6,6 +6,7 @@ from fastapi import Depends, HTTPException, UploadFile
 from src.models.model import Performance
 from src.repositories.image import ImageRepository
 from src.repositories.performance import PerformanceRepository
+from src.repositories.user import UserRepository
 from src.utils.s3 import S3Util
 
 
@@ -14,10 +15,12 @@ class PerformanceService:
         self,
         s3_util: S3Util = Depends(S3Util),
         performance_repository=Depends(PerformanceRepository),
+        user_repository=Depends(UserRepository),
         image_repository: ImageRepository = Depends(ImageRepository),
     ):
         self.s3_util = s3_util
         self.performance_repository = performance_repository
+        self.user_repository = user_repository
         self.image_repository = image_repository
 
     async def save_performance(self, performance: Performance) -> Performance:
@@ -69,3 +72,37 @@ class PerformanceService:
         await self.performance_repository.save_performance(performance=performance)
 
         return await performance.poster_image_url
+
+    def like_performance(self, performanceId: UUID, userId: UUID):
+        user = self.user_repository.find_user_by_id(user_id=userId)
+
+        if not user:
+            raise HTTPException(status_code=404, detail="User not found")
+
+        performance = self.performance_repository.find_performance_by_id(
+            performance_id=performanceId
+        )
+
+        if not performance:
+            raise HTTPException(status_code=404, detail="Performance not found")
+
+        performance.like_users.append(user)
+
+        self.performance_repository.save_performance(performance=performance)
+
+    def unlike_performance(self, performanceId: UUID, userId: UUID):
+        user = self.user_repository.find_user_by_id(user_id=userId)
+
+        if not user:
+            raise HTTPException(status_code=404, detail="User not found")
+
+        performance = self.performance_repository.find_performance_by_id(
+            performance_id=performanceId
+        )
+
+        if not performance:
+            raise HTTPException(status_code=404, detail="Performance not found")
+
+        performance.like_users.remove(user)
+
+        self.performance_repository.save_performance(performance=performance)
