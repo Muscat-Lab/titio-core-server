@@ -1,14 +1,17 @@
 import pytest
 import pytest_asyncio
 from fastapi.testclient import TestClient
+from pydantic_settings import SettingsConfigDict
 
 from src.config import ConfigTemplate
 from src.main import app
 from src.models import model
 
-ConfigTemplate.Config.env_file = ".env.test"
+ConfigTemplate.model_config = SettingsConfigDict(
+    env_file=".env.test", env_file_encoding="utf-8", env_prefix="APP_"
+)
 
-assert ConfigTemplate().Config.env_file == ".env.test"
+assert ConfigTemplate().model_config.get("env_file") == ".env.test"
 assert ConfigTemplate().DATABASE_NAME == "dev-test"
 
 
