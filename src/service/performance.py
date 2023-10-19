@@ -40,6 +40,12 @@ class PerformanceService:
             genre_ident=genre_ident,
         )
 
+    async def get_performance(self, performance_id: UUID, user_id: UUID | None = None):
+        return await self.performance_repository.find_performance_by_id(
+            performance_id=performance_id,
+            user_id=user_id,
+        )
+
     async def delete_performance(self, performance_id):
         return await self.performance_repository.delete_performance(
             performance_id=performance_id
