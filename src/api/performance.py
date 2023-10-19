@@ -35,6 +35,30 @@ class PerformanceListResponse(ListResponseBase):
     performances: list[Performance]
 
 
+class PerformanceHotResponse(PerformanceListResponse):
+    pass
+
+
+@router.get("/hot")
+async def performance_hot_handler(
+    performance_service: PerformanceService = Depends(),
+    user_id: UUID | None = Depends(get_current_user_optional),
+) -> PerformanceHotResponse:
+    performances = await performance_service.get_hot_performance(user_id=user_id)
+
+    return PerformanceHotResponse(
+        performances=[
+            PerformanceHotResponse.Performance.model_validate(
+                performance, from_attributes=True
+            )
+            for performance in performances
+        ],
+        next_cursor=(
+            performances[-1].latest_cursor if len(performances) >= 20 else None
+        ),
+    )
+
+
 @router.get("")
 async def performance_list_handler(
     q: PerformanceListRequest = Depends(),
@@ -201,13 +225,3 @@ async def performance_unlike_handler(
     await performance_service.unlike_performance(performanceId, user_id)
 
     return ResponseBase()
-
-
-@router.get("/hot")
-async def performance_hot_handler(
-    performance_service: PerformanceService = Depends(),
-    user_id: UUID | None = Depends(get_current_user_optional),
-) -> PerformanceGetResponse:
-    performance = await performance_service.get_hot_performance(user_id=user_id)
-
-    return PerformanceGetResponse.model_validate(performance, from_attributes=True)

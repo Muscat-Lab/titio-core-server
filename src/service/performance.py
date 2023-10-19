@@ -113,8 +113,8 @@ class PerformanceService:
 
         await self.performance_repository.save_performance(performance=performance)
 
-    async def get_hot_performance(self, user_id) -> list[Performance]:
-        return self.performance_repository.get_performance_list(
+    async def get_hot_performance(self, user_id: UUID | None) -> list[Performance]:
+        return await self.performance_repository.get_performance_list(
             limit=20,
             cursor=None,
         )
