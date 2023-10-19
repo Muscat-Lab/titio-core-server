@@ -80,12 +80,12 @@ class PerformanceService:
         return await performance.poster_image_url
 
     async def like_performance(self, performanceId: UUID, userId: UUID):
-        user = self.user_repository.find_user_by_id(user_id=userId)
+        user = await self.user_repository.find_user_by_id(user_id=userId)
 
         if not user:
             raise HTTPException(status_code=404, detail="User not found")
 
-        performance = self.performance_repository.find_performance_by_id(
+        performance = await self.performance_repository.find_performance_by_id(
             performance_id=performanceId
         )
 
@@ -94,15 +94,15 @@ class PerformanceService:
 
         performance.like_users.append(user)
 
-        self.performance_repository.save_performance(performance=performance)
+        await self.performance_repository.save_performance(performance=performance)
 
     async def unlike_performance(self, performanceId: UUID, userId: UUID):
-        user = self.user_repository.find_user_by_id(user_id=userId)
+        user = await self.user_repository.find_user_by_id(user_id=userId)
 
         if not user:
             raise HTTPException(status_code=404, detail="User not found")
 
-        performance = self.performance_repository.find_performance_by_id(
+        performance = await self.performance_repository.find_performance_by_id(
             performance_id=performanceId
         )
 
@@ -111,7 +111,7 @@ class PerformanceService:
 
         performance.like_users.remove(user)
 
-        self.performance_repository.save_performance(performance=performance)
+        await self.performance_repository.save_performance(performance=performance)
 
     async def get_hot_performance(self, user_id) -> list[Performance]:
         return self.performance_repository.get_performance_list(
