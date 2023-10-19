@@ -79,7 +79,7 @@ class PerformanceService:
 
         return await performance.poster_image_url
 
-    def like_performance(self, performanceId: UUID, userId: UUID):
+    async def like_performance(self, performanceId: UUID, userId: UUID):
         user = self.user_repository.find_user_by_id(user_id=userId)
 
         if not user:
@@ -96,7 +96,7 @@ class PerformanceService:
 
         self.performance_repository.save_performance(performance=performance)
 
-    def unlike_performance(self, performanceId: UUID, userId: UUID):
+    async def unlike_performance(self, performanceId: UUID, userId: UUID):
         user = self.user_repository.find_user_by_id(user_id=userId)
 
         if not user:
@@ -112,3 +112,9 @@ class PerformanceService:
         performance.like_users.remove(user)
 
         self.performance_repository.save_performance(performance=performance)
+
+    async def get_hot_performance(self, user_id) -> list[Performance]:
+        return self.performance_repository.get_performance_list(
+            limit=20,
+            cursor=None,
+        )

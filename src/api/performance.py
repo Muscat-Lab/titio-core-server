@@ -201,3 +201,13 @@ async def performance_unlike_handler(
     await performance_service.unlike_performance(performanceId, user_id)
 
     return ResponseBase()
+
+
+@router.get("/hot")
+async def performance_hot_handler(
+    performance_service: PerformanceService = Depends(),
+    user_id: UUID | None = Depends(get_current_user_optional),
+) -> PerformanceGetResponse:
+    performance = await performance_service.get_hot_performance(user_id=user_id)
+
+    return PerformanceGetResponse.model_validate(performance, from_attributes=True)
