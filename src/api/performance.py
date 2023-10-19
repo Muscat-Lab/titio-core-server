@@ -5,7 +5,7 @@ from fastapi import APIRouter, Depends, File, Query, UploadFile
 from pydantic import Field
 
 from src.api.request import ListRequestBase, ListResponseBase, RequestBase, ResponseBase
-from src.auth.jwt_handler import get_current_user, get_current_user_optional
+from src.auth.jwt_handler import get_current_user
 from src.models.model import Performance
 from src.service.performance import PerformanceService
 
@@ -28,9 +28,6 @@ class PerformanceListResponse(ListResponseBase):
         pre_booking_enabled: bool
         pre_booking_closed_at: datetime.datetime | None = None
         poster_image_url: str | None = None
-        like: bool | None = None
-        schedule_text: str = ""
-        location_text: str = ""
 
     performances: list[Performance]
 
@@ -39,7 +36,6 @@ class PerformanceListResponse(ListResponseBase):
 async def performance_list_handler(
     q: PerformanceListRequest = Depends(),
     performance_service: PerformanceService = Depends(),
-    user_id: UUID | None = Depends(get_current_user_optional),
 ) -> PerformanceListResponse:
     performances = await performance_service.get_performance_list(
         limit=q.limit,
@@ -59,24 +55,6 @@ async def performance_list_handler(
             performances[-1].latest_cursor if len(performances) >= q.limit else None
         ),
     )
-
-
-class PerformanceGetResponse(PerformanceListResponse.Performance):
-    pass
-
-
-@router.get("/{performanceId}")
-async def performance_detail_handler(
-    performanceId: UUID,
-    performance_service: PerformanceService = Depends(),
-    user_id: UUID | None = Depends(get_current_user_optional),
-) -> PerformanceGetResponse:
-    performance = await performance_service.get_performance(
-        performance_id=performanceId,
-        user_id=user_id,
-    )
-
-    return PerformanceGetResponse.model_validate(performance, from_attributes=True)
 
 
 class PerformanceCreateRequest(RequestBase):
