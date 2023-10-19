@@ -9,7 +9,7 @@
 ## 프로젝트 시작하기
 
 ```bash
-git clone https://github.com/Muscat-Lab/TITO_CORE_API.git
+git clone https://github.com/Muscat-Lab/titio-core-server.git
 cd TITO_CORE_API
 ```
 
