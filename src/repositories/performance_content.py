@@ -1,6 +1,7 @@
 from uuid import UUID
 
 from fastapi import Depends
+from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from src.database.connection import get_db
@@ -26,17 +27,17 @@ class PerformanceContentRepository:
         limit: int = 20,
         cursor: str | None = None,
     ) -> list[PerformanceContent]:
-        query = self.session.query(PerformanceContent).where(
+        query = select(PerformanceContent).where(
             PerformanceContent.performance_id == performance_id
         )
 
-        if cursor:
-            query = query.where(PerformanceContent.sequence > int(cursor))
+        if cursor is not None:
+            query = query.where(PerformanceContent.created_at < cursor)
 
         return list(
             (
                 self.session.scalars(
-                    query.order_by(PerformanceContent.sequence.asc()).limit(limit)
+                    query.order_by(PerformanceContent.created_at.desc()).limit(limit)
                 )
             ).all()
         )

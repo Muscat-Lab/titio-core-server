@@ -63,6 +63,17 @@ class Area(Base):
         )
 
 
+class HotPerformance(Base):
+    __tablename__ = "hot_performances"
+
+    id = mapped_column(Uuid, primary_key=True, index=True, default=uuid.uuid4)
+    performance_id = mapped_column(ForeignKey("performances.id"), nullable=False)
+
+    performance: Mapped["Performance"] = relationship(
+        back_populates="hot", overlaps="hot_performances"
+    )
+
+
 class Performance(Base):
     __tablename__ = "performances"
 
@@ -75,6 +86,15 @@ class Performance(Base):
     pre_booking_enabled = mapped_column(Boolean, nullable=False)
     pre_booking_closed_at = mapped_column(DateTime(timezone=True), nullable=True)
     poster_image_id = mapped_column(ForeignKey("images.id"), nullable=True)
+    latest_cursor = mapped_column(
+        String(256),
+        Computed(
+            "CONCAT(created_at, ':', id)",
+        ),
+        index=True,
+        nullable=False,
+    )
+    genre_idents = mapped_column(JSON, nullable=False, default=[])
 
     areas: Mapped[List["Area"]] = relationship(back_populates="performance")
     seat_grades: Mapped[List["SeatGrade"]] = relationship(back_populates="performance")
@@ -93,17 +113,11 @@ class Performance(Base):
     like_users: Mapped[List["User"]] = relationship(
         secondary="user_performance_likes", back_populates="like_performances"
     )
-
-    latest_cursor = mapped_column(
-        String(256),
-        Computed(
-            "CONCAT(created_at, ':', id)",
-        ),
-        index=True,
-        nullable=False,
+    hot: Mapped["HotPerformance"] = relationship(
+        "HotPerformance",
+        foreign_keys=[HotPerformance.performance_id],
+        backref="hot_performances",
     )
-
-    genre_idents = mapped_column(JSON, nullable=False, default=[])
 
     @classmethod
     def create(
@@ -137,6 +151,21 @@ class Performance(Base):
         return get_presigned_url_by_path(
             config=get_config(), path=self.poster_image.path
         )
+
+    @property
+    def dict(self) -> dict:
+        return {
+            "id": self.id,
+            "title": self.title,
+            "running_time": self.running_time,
+            "grade": self.grade,
+            "begin": self.begin,
+            "end": self.end,
+            "pre_booking_enabled": self.pre_booking_enabled,
+            "pre_booking_closed_at": self.pre_booking_closed_at,
+            "poster_image_url": self.poster_image_url,
+            "latest_cursor": self.latest_cursor,
+        }
 
 
 class PerformanceContent(Base):

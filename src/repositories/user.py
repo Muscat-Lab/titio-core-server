@@ -49,3 +49,24 @@ class UserRepository:
             )
 
         self.session.commit()
+
+    async def get_like_performance_list(
+        self,
+        user_id: UUID,
+        performance_ids: list[UUID] | None = None,
+    ):
+        query = select(UserPerformerLike).where(UserPerformerLike.user_id == user_id)
+
+        if performance_ids is not None:
+            query = query.where(UserPerformerLike.performer_id.in_(performance_ids))
+
+        return list(
+            (
+                self.session.scalars(
+                    query.order_by(UserPerformerLike.created_at.desc())
+                )
+            ).all()
+        )
+
+    def find_user_by_email(self, email: str):
+        return self.session.scalar(select(User).where(User.email == email))
