@@ -5,7 +5,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session, joinedload
 
 from src.database.connection import get_db
-from src.models.model import Performance
+from src.models.model import HotPerformance, Performance, UserPerformanceLike
 
 
 class PerformanceRepository:
@@ -45,6 +45,45 @@ class PerformanceRepository:
             ).all()
         )
 
+    async def get_performance_list_by_ids(
+        self,
+        performance_ids: list[UUID],
+    ) -> list[Performance]:
+        query = select(Performance).where(Performance.id.in_(performance_ids))
+
+        return list(
+            (self.session.scalars(query.order_by(Performance.created_at.desc()))).all()
+        )
+
+    async def get_like_list_by_user_id(
+        self,
+        user_id: UUID,
+        performance_ids: list[UUID] | None,
+    ) -> list[UserPerformanceLike]:
+        query = select(UserPerformanceLike).where(
+            UserPerformanceLike.user_id == user_id
+        )
+
+        if performance_ids is not None:
+            query = query.where(UserPerformanceLike.performance_id.in_(performance_ids))
+
+        return list(
+            (
+                self.session.scalars(
+                    query.order_by(UserPerformanceLike.created_at.desc())
+                )
+            ).all()
+        )
+
+    async def get_hot_performance_list(self) -> list[HotPerformance]:
+        query = select(HotPerformance)
+
+        return list(
+            (
+                self.session.scalars(query.order_by(HotPerformance.created_at.desc()))
+            ).all()
+        )
+
     async def delete_performance(self, performance_id: UUID):
         self.session.query(Performance).where(Performance.id == performance_id).delete()
         self.session.commit()
@@ -55,3 +94,13 @@ class PerformanceRepository:
             .where(Performance.id == performance_id)
             .first()
         )
+
+    def create_hot_performance(self, performance_id: UUID):
+        self.session.add(instance=HotPerformance(performance_id=performance_id))
+        self.session.commit()
+
+    async def delete_hot_performance(self, performance_id: UUID):
+        self.session.query(HotPerformance).where(
+            HotPerformance.performance_id == performance_id
+        ).delete()
+        self.session.commit()

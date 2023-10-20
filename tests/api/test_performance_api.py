@@ -11,6 +11,7 @@ from src.api.performance import (
     performance_list_handler,
 )
 from src.models.model import Performance
+from src.schema.performance import BasePerformanceResponse
 from src.service.performance import PerformanceService
 from tests.fixture.performance import default_performance
 
@@ -48,7 +49,10 @@ class TestPerformanceAPI:
         default_performance.id = uuid.uuid4()
 
         mocked_performance_service.get_performance_list.return_value = [
-            default_performance,
+            BasePerformanceResponse(
+                **default_performance.dict,
+                like=False,
+            )
         ]
 
         response = await performance_list_handler(

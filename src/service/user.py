@@ -63,3 +63,11 @@ class UserService:
         user.avatar_image_id = image.id
 
         return await self.s3_util.get_presigned_url_by_path(path=image.path)
+
+    def find_user_by_email(self, email: str):
+        user = self.user_repository.find_user_by_email(email=email)
+
+        if not user:
+            raise HTTPException(status_code=404, detail="User not found")
+
+        return user
