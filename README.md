@@ -10,7 +10,7 @@
 
 ```bash
 git clone https://github.com/Muscat-Lab/titio-core-server.git
-cd TITO_CORE_API
+cd titio-core-server
 ```
 
 ## 로컬에서 서버를 실행하는 방법
