@@ -154,6 +154,10 @@ class PerformanceService:
 
         await self.performance_repository.save_performance(performance=performance)
 
+        performance = await self.performance_repository.find_performance_by_id(
+            performance_id=performance_id
+        )
+
         return performance.poster_image_url or ""
 
     async def like_performance(self, performanceId: UUID, userId: UUID):
