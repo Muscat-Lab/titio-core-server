@@ -5,7 +5,7 @@ import pytest
 import pytest_asyncio
 from fastapi.testclient import TestClient
 from pydantic_settings import SettingsConfigDict
-from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine, async_sessionmaker
+from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 
 from src.config import ConfigTemplate
 from src.main import app

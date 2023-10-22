@@ -2,7 +2,7 @@ from uuid import UUID
 
 from fastapi import APIRouter, Depends
 
-from src.api.request import ListRequestBase, ListResponseBase, RequestBase, ResponseBase
+from src.api.request import RequestBase, ResponseBase
 from src.models.model import PerformanceContent
 from src.service.performance_content import PerformanceContentService
 

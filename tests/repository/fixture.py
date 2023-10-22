@@ -21,6 +21,7 @@ def user_repository(session):
 def performer_repository(session):
     return PerformerRepository(session=session)
 
+
 async def new_user(user_repository):
     return await user_repository.save_user(
         User.create(

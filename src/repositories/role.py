@@ -2,7 +2,6 @@ from uuid import UUID
 
 from fastapi import Depends
 from sqlalchemy import select
-from sqlalchemy.orm import Session
 
 from src.database.connection import get_db
 from src.models.model import Role

@@ -158,6 +158,9 @@ class PerformanceService:
             performance_id=performance_id
         )
 
+        if performance is None:
+            return ""
+
         return performance.poster_image_url or ""
 
     async def like_performance(self, performanceId: UUID, userId: UUID):

@@ -1,7 +1,7 @@
 from uuid import UUID
 
 from fastapi import Depends
-from sqlalchemy import select, delete
+from sqlalchemy import delete, select
 from sqlalchemy.orm import joinedload
 
 from src.database.connection import get_db
@@ -47,9 +47,11 @@ class PerformanceRepository:
         self,
         performance_ids: list[UUID],
     ) -> list[Performance]:
-        query = select(Performance).options(
-            joinedload(Performance.poster_image)
-        ).where(Performance.id.in_(performance_ids))
+        query = (
+            select(Performance)
+            .options(joinedload(Performance.poster_image))
+            .where(Performance.id.in_(performance_ids))
+        )
 
         return list(
             (
