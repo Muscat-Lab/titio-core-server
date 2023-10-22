@@ -58,7 +58,7 @@ class TestPerformanceRepository:
         assert len(performances) != 0
 
         # test pre_booking_enabled filter
-        first = await performance_repository.save_performance(
+        await performance_repository.save_performance(
             Performance.create(
                 title="사전예약 활성화",
                 running_time="150분",
@@ -138,14 +138,14 @@ class TestPerformanceRepository:
         default_performance: Performance,
         user_repository: UserRepository,
     ):
-        performance = await performance_repository.save_performance(default_performance)
+        _performance = await performance_repository.save_performance(default_performance)
 
-        assert performance is not None
+        assert _performance is not None
 
         user = await new_user(user_repository)
 
         performance = await performance_repository.find_performance_by_id(
-            performance_id=performance.id
+            performance_id=_performance.id
         )
 
         performance.like_users.append(user)

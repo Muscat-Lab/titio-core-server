@@ -4,6 +4,7 @@ from typing import List
 
 from snowflake import SnowflakeGenerator
 from sqlalchemy import (
+    BigInteger,
     Boolean,
     Computed,
     Date,
@@ -15,7 +16,6 @@ from sqlalchemy import (
     Text,
     Time,
     Uuid,
-    BigInteger,
 )
 from sqlalchemy.dialects.mysql import JSON
 from sqlalchemy.dialects.postgresql import ARRAY
@@ -55,9 +55,9 @@ class Area(Base):
 
     @classmethod
     def create(
-            cls,
-            performance_id: uuid.UUID,
-            title: str,
+        cls,
+        performance_id: uuid.UUID,
+        title: str,
     ) -> "Area":
         return cls(
             performance_id=performance_id,
@@ -120,15 +120,15 @@ class Performance(Base):
 
     @classmethod
     def create(
-            cls,
-            title: str,
-            running_time: str,
-            grade: str,
-            begin: datetime.date,
-            end: datetime.date,
-            pre_booking_enabled: bool,
-            pre_booking_closed_at: datetime.datetime | None,
-            genre_idents: list[str] | None = None,
+        cls,
+        title: str,
+        running_time: str,
+        grade: str,
+        begin: datetime.date,
+        end: datetime.date,
+        pre_booking_enabled: bool,
+        pre_booking_closed_at: datetime.datetime | None,
+        genre_idents: list[str] | None = None,
     ) -> "Performance":
         return cls(
             title=title,
@@ -174,17 +174,20 @@ class PerformanceContent(Base):
 
     id = mapped_column(Uuid, primary_key=True, index=True, default=uuid.uuid4)
     performance_id = mapped_column(ForeignKey("performances.id"), nullable=False)
+    showtime_info = mapped_column(Text, nullable=True)
     notice = mapped_column(Text, nullable=True)
     introduction = mapped_column(Text, nullable=True)
+    casting_schedule = mapped_column(JSON, nullable=True)
+    discount_info = mapped_column(JSON, nullable=True)
 
     performance: Mapped["Performance"] = relationship(back_populates="content")
 
     @classmethod
     def create(
-            cls,
-            performance_id: uuid.UUID,
-            notice: str | None = None,
-            introduction: str | None = None,
+        cls,
+        performance_id: uuid.UUID,
+        notice: str | None = None,
+        introduction: str | None = None,
     ) -> "PerformanceContent":
         return cls(
             performance_id=performance_id,
@@ -228,9 +231,9 @@ class Performer(Base):
 
     @classmethod
     def create(
-            cls,
-            name: str,
-            description: str | None = None,
+        cls,
+        name: str,
+        description: str | None = None,
     ) -> "Performer":
         return cls(
             name=name,
@@ -268,9 +271,9 @@ class Role(Base):
 
     @classmethod
     def create(
-            cls,
-            performance_id: uuid.UUID,
-            name: str,
+        cls,
+        performance_id: uuid.UUID,
+        name: str,
     ) -> "Role":
         return cls(
             performance_id=performance_id,
@@ -293,10 +296,10 @@ class Casting(Base):
 
     @classmethod
     def create(
-            cls,
-            performance_id: uuid.UUID,
-            performer_id: uuid.UUID,
-            role_id: uuid.UUID,
+        cls,
+        performance_id: uuid.UUID,
+        performer_id: uuid.UUID,
+        role_id: uuid.UUID,
     ) -> "Casting":
         return cls(
             performance_id=performance_id,
@@ -318,10 +321,10 @@ class Schedule(Base):
 
     @classmethod
     def create(
-            cls,
-            performance_id: uuid.UUID,
-            date: datetime.date,
-            time: datetime.time,
+        cls,
+        performance_id: uuid.UUID,
+        date: datetime.date,
+        time: datetime.time,
     ) -> "Schedule":
         return cls(
             performance_id=performance_id,
@@ -342,9 +345,9 @@ class ScheduleCasting(Base):
 
     @classmethod
     def create(
-            cls,
-            schedule_id: uuid.UUID,
-            casting_id: uuid.UUID,
+        cls,
+        schedule_id: uuid.UUID,
+        casting_id: uuid.UUID,
     ) -> "ScheduleCasting":
         return cls(
             schedule_id=schedule_id,
@@ -510,7 +513,7 @@ class UserPerformanceLike(Base):
 
     @classmethod
     def create(
-            cls, user_id: uuid.UUID, performance_id: uuid.UUID
+        cls, user_id: uuid.UUID, performance_id: uuid.UUID
     ) -> "UserPerformanceLike":
         return cls(
             user_id=user_id,
