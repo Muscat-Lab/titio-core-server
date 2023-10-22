@@ -17,3 +17,4 @@ class BasePerformanceResponse(ResponseBase):
     like: bool = False
     schedule_text: str = ""
     location_text: str = ""
+    snowflake_id: int

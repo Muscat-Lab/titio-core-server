@@ -8,7 +8,7 @@ from src.models.model import Seat
 
 
 class SeatRepository:
-    def __init__(self, session: Session = Depends(get_db)):
+    def __init__(self, session=Depends(get_db)):
         self.session = session
 
     async def get_seat_list(
@@ -26,17 +26,15 @@ class SeatRepository:
         if cursor is not None:
             query = query.where(Seat.row_col_cursor > int(cursor))
 
-        return list(
-            (
-                self.session.scalars(
-                    query.order_by(Seat.row_col_cursor.asc()).limit(limit)
-                )
-            ).all()
-        )
+        query = query.order_by(Seat.row_col_cursor.asc()).limit(limit)
+
+        seats = await self.session.execute(query)
+
+        return list(seats.scalars().all())
 
     async def save_seat(self, seat: Seat) -> Seat:
         self.session.add(instance=seat)
-        self.session.commit()
-        self.session.refresh(instance=seat)
+        await self.session.commit()
+        await self.session.refresh(instance=seat)
 
         return seat

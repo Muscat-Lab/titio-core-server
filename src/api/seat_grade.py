@@ -40,7 +40,7 @@ async def seat_grade_list_handler(
             for seat_grade in seat_grades
         ],
         next_cursor=(
-            seat_grades[-1].latest_cursor if len(seat_grades) >= q.limit else None
+            str(seat_grades[-1].snowflake_id) if len(seat_grades) >= q.limit else None
         ),
     )
 
