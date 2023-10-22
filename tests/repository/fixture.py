@@ -2,6 +2,7 @@ import pytest
 
 from src.models.model import User
 from src.repositories.performance import PerformanceRepository
+from src.repositories.performer import PerformerRepository
 from src.repositories.user import UserRepository
 from tests.test_utils import generate_random_email
 
@@ -15,6 +16,10 @@ def performance_repository(session):
 def user_repository(session):
     return UserRepository(session=session)
 
+
+@pytest.fixture
+def performer_repository(session):
+    return PerformerRepository(session=session)
 
 async def new_user(user_repository):
     return await user_repository.save_user(

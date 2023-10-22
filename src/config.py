@@ -23,7 +23,7 @@ class ConfigTemplate(BaseSettings):
 
     AWS_ACCESS_KEY_ID: str = "minio"
     AWS_SECRET_ACCESS_KEY: str = "minio1234"
-    AWS_S3_ENDPOINT_URL: str = "http://s3:9000"
+    AWS_S3_ENDPOINT_URL: str = "http://localhost:9000"
     AWS_S3_BUCKET_NAME: str = "dev"
 
     MAX_UPLOAD_IMAGE_SIZE: int = 1024 * 1024 * 10  # 10MB
@@ -33,7 +33,7 @@ class ConfigTemplate(BaseSettings):
     @property
     def db_uri(self) -> str:
         return (
-            f"mysql+pymysql://{self.DATABASE_USER}:{self.DATABASE_PASSWORD}@"
+            f"postgresql+asyncpg://{self.DATABASE_USER}:{self.DATABASE_PASSWORD}@"
             f"{self.DATABASE_HOST}:{self.DATABASE_PORT}/{self.DATABASE_NAME}"
         )
 

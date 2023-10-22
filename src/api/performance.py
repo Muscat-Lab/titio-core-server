@@ -50,7 +50,7 @@ async def performance_hot_list_handler(
     return PerformanceHotResponse(
         performances=performances,
         next_cursor=(
-            performances[-1].latest_cursor if len(performances) >= 20 else None
+            str(performances[-1].snowflake_id) if len(performances) >= 20 else None
         ),
     )
 
@@ -110,7 +110,7 @@ async def performance_list_handler(
     return PerformanceListResponse(
         performances=performances,
         next_cursor=(
-            performances[-1].latest_cursor if len(performances) >= q.limit else None
+            str(performances[-1].snowflake_id) if len(performances) >= q.limit else None
         ),
     )
 

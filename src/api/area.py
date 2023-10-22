@@ -37,7 +37,7 @@ async def area_list_handler(
             AreaListResponse.Area.model_validate(area, from_attributes=True)
             for area in areas
         ],
-        next_cursor=areas[-1].latest_cursor if len(areas) >= q.limit else None,
+        next_cursor=str(areas[-1].snowflake_id) if len(areas) >= q.limit else None,
     )
 
 

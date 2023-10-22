@@ -11,10 +11,14 @@ def get_presigned_url_by_path(
     expires_in: int = 3600,
 ) -> str:
     session = boto3.Session(
-        region_name="ap-northeast-2",
+        # region_name="ap-northeast-2",
         aws_access_key_id=config.AWS_ACCESS_KEY_ID,
         aws_secret_access_key=config.AWS_SECRET_ACCESS_KEY,
     )
+
+    print(config.AWS_S3_BUCKET_NAME)
+    print(config.AWS_ACCESS_KEY_ID)
+    print(config.AWS_SECRET_ACCESS_KEY)
 
     return session.client("s3").generate_presigned_url(
         "get_object",

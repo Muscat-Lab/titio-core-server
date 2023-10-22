@@ -9,7 +9,7 @@ from src.models.model import Casting
 
 
 class CastingRepository:
-    def __init__(self, session: Session = Depends(get_db)):
+    def __init__(self, session=Depends(get_db)):
         self.session = session
 
     async def get_casting_list(
@@ -32,11 +32,11 @@ class CastingRepository:
 
         query = query.order_by(Casting.created_at.desc()).limit(limit)
 
-        return list(self.session.execute(query).scalars().all())
+        return list((await self.session.execute(query)).scalars().all())
 
     async def save_casting(self, casting: Casting) -> Casting:
         self.session.add(casting)
-        self.session.commit()
-        self.session.refresh(casting)
+        await self.session.commit()
+        await self.session.refresh(casting)
 
         return casting

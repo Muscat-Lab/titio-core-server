@@ -9,60 +9,41 @@ from src.service.performance_content import PerformanceContentService
 router = APIRouter(prefix="/performanceContents", tags=["performanceContent"])
 
 
-class PerformanceContentListRequest(ListRequestBase):
+class PerformanceContentRequest(RequestBase):
     performance_id: UUID
 
 
-class PerformanceContentListResponse(ListResponseBase):
-    class PerformanceContent(ResponseBase):
-        id: UUID
-        performance_id: UUID
-        heading: str
-        content: str
-
-    performance_contents: list[PerformanceContent]
+class PerformanceContentResponse(ResponseBase):
+    id: UUID
+    performance_id: UUID
+    notice: str | None
+    introduction: str | None
 
 
 @router.get("")
-async def performance_content_list_handler(
-    q: PerformanceContentListRequest = Depends(),
+async def performance_content_handler(
+    q: PerformanceContentRequest = Depends(),
     performance_content_service: PerformanceContentService = Depends(),
-) -> PerformanceContentListResponse:
-    performance_contents = (
-        await performance_content_service.get_performance_content_list(
-            performance_id=q.performance_id,
-            limit=q.limit,
-            cursor=q.cursor,
-        )
+) -> PerformanceContentResponse:
+    performance_content = await performance_content_service.get_performance_content(
+        performance_id=q.performance_id,
     )
 
-    return PerformanceContentListResponse(
-        performance_contents=[
-            PerformanceContentListResponse.PerformanceContent.model_validate(
-                performance_content, from_attributes=True
-            )
-            for performance_content in performance_contents
-        ],
-        next_cursor=(
-            performance_contents[-1].sequence
-            if len(performance_contents) >= q.limit
-            else None
-        ),
+    return PerformanceContentResponse.model_validate(
+        performance_content, from_attributes=True
     )
 
 
 class PerformanceContentSaveRequest(RequestBase):
     performance_id: UUID
-    sequence: int
-    heading: str
-    content: str
+    notice: str | None
+    introduction: str | None
 
 
 class PerformanceContentSaveResponse(ResponseBase):
     performance_id: UUID
-    sequence: int
-    heading: str
-    content: str
+    notice: str | None
+    introduction: str | None
 
 
 @router.post("")
@@ -73,15 +54,13 @@ async def performance_content_save_handler(
     performance_content = await performance_content_service.save_performance_content(
         PerformanceContent.create(
             performance_id=q.performance_id,
-            sequence=q.sequence,
-            heading=q.heading,
-            content=q.content,
+            notice=q.notice,
+            introduction=q.introduction,
         )
     )
 
     return PerformanceContentSaveResponse(
         performance_id=performance_content.performance_id,
-        sequence=performance_content.sequence,
-        heading=performance_content.heading,
-        content=performance_content.content,
+        notice=performance_content.notice,
+        introduction=performance_content.introduction,
     )

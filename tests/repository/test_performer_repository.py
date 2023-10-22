@@ -3,17 +3,12 @@ import pytest
 from src.models.model import Performer, User
 from src.repositories.performer import PerformerRepository
 from src.repositories.user import UserRepository
+from tests.repository.fixture import performer_repository, user_repository
+
+__all__ = ("performer_repository", "user_repository")
 
 
 class TestPerformerRepository:
-    @pytest.fixture
-    def performer_repository(self, session):
-        return PerformerRepository(session=session)
-
-    @pytest.fixture
-    def user_repository(self, session):
-        return UserRepository(session=session)
-
     @pytest.mark.asyncio
     async def test_save_performer(self, performer_repository: PerformerRepository):
         performer = await performer_repository.save_performer(
@@ -27,6 +22,13 @@ class TestPerformerRepository:
 
     @pytest.mark.asyncio
     async def test_get_performer_list(self, performer_repository: PerformerRepository):
+        await performer_repository.save_performer(
+            performer=Performer.create(
+                name="테스트",
+                description="테스트",
+            )
+        )
+
         performers = await performer_repository.get_performer_list(
             limit=20,
         )
@@ -37,6 +39,13 @@ class TestPerformerRepository:
     async def test_get_performer_list_with_like_count(
         self, performer_repository: PerformerRepository, user_repository: UserRepository
     ):
+        await performer_repository.save_performer(
+            performer=Performer.create(
+                name="테스트",
+                description="테스트",
+            )
+        )
+
         users = [
             (
                 await user_repository.save_user(

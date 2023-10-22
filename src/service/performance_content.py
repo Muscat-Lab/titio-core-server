@@ -32,14 +32,10 @@ class PerformanceContentService:
             performance_content
         )
 
-    async def get_performance_content_list(
+    async def get_performance_content(
         self,
         performance_id: UUID,
-        limit: int = 20,
-        cursor: str | None = None,
-    ) -> list[PerformanceContent]:
-        return await self.performance_content_repository.get_performance_content_list(
+    ) -> PerformanceContent:
+        return await self.performance_content_repository.get_performance_content(
             performance_id,
-            limit=limit,
-            cursor=cursor,
         )

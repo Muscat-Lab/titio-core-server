@@ -7,7 +7,7 @@ from src.models.model import Genre, UserGenreLike
 
 
 class GenreRepository:
-    def __init__(self, session: Session = Depends(get_db)):
+    def __init__(self, session=Depends(get_db)):
         self.session = session
 
     async def get_genre_list(
@@ -20,7 +20,7 @@ class GenreRepository:
 
         query = query.order_by(Genre.created_at.desc()).limit(limit)
 
-        return list(self.session.execute(query).scalars().all())
+        return list((await self.session.execute(query)).scalars().all())
 
     async def get_genre_list_with_like_count(
         self,
@@ -36,22 +36,22 @@ class GenreRepository:
 
         query = query.order_by(Genre.id.desc()).limit(limit)
 
-        return list(self.session.execute(query).unique().scalars().all())
+        return list((await self.session.execute(query)).unique().scalars().all())
 
     async def save_genre(self, genre: Genre) -> Genre:
         self.session.add(instance=genre)
-        self.session.commit()
-        self.session.refresh(instance=genre)
+        await self.session.commit()
+        await self.session.refresh(instance=genre)
 
         return genre
 
     async def like(self, genre_like: UserGenreLike) -> UserGenreLike:
         self.session.add(instance=genre_like)
-        self.session.commit()
-        self.session.refresh(instance=genre_like)
+        await self.session.commit()
+        await self.session.refresh(instance=genre_like)
 
         return genre_like
 
     async def unlike(self, genre_like: UserGenreLike) -> None:
-        self.session.delete(instance=genre_like)
-        self.session.commit()
+        await self.session.delete(instance=genre_like)
+        await self.session.commit()
