@@ -138,7 +138,9 @@ class TestPerformanceRepository:
         default_performance: Performance,
         user_repository: UserRepository,
     ):
-        _performance = await performance_repository.save_performance(default_performance)
+        _performance = await performance_repository.save_performance(
+            default_performance
+        )
 
         assert _performance is not None
 
