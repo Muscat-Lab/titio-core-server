@@ -32,7 +32,7 @@ async def like_choices_handler(
                 from_attributes=True,
             )
             for performer in await like_service.get_like_choice_list(
-                limit=10,
+                limit=q.limit,
                 cursor=q.cursor,
             )
         ],
