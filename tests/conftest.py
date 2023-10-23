@@ -1,7 +1,11 @@
+import asyncio
+from typing import Generator
+
 import pytest
 import pytest_asyncio
 from fastapi.testclient import TestClient
 from pydantic_settings import SettingsConfigDict
+from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 
 from src.config import ConfigTemplate
 from src.main import app
@@ -20,33 +24,39 @@ def client():
     return TestClient(app=app)
 
 
-@pytest.fixture(autouse=True, scope="session")
-def db():
-    from src.database.connection import SqlaEngine
-
-    engine = SqlaEngine(ConfigTemplate()).engine
-
-    model.Base.metadata.create_all(engine)
-
-    try:
-        yield engine
-    finally:
-        model.Base.metadata.drop_all(engine)
-        engine.dispose()
+@pytest.fixture(scope="session")
+def event_loop() -> Generator:
+    loop = asyncio.get_event_loop_policy().new_event_loop()
+    yield loop
+    loop.close()
 
 
-@pytest.fixture()
-def session(db):
-    from src.database.connection import SqlaEngine
+@pytest.fixture(scope="session")
+def engine():
+    engine = create_async_engine(ConfigTemplate().db_uri)
 
-    session = SqlaEngine(ConfigTemplate()).session()
-    session.begin_nested()
+    yield engine
+    engine.sync_engine.dispose()
 
-    try:
+
+@pytest_asyncio.fixture()
+async def session(engine):
+    async with engine.begin() as conn:
+        await conn.run_sync(model.Base.metadata.create_all)
+
+    sessionmaker = async_sessionmaker(
+        autoflush=False,
+        autocommit=False,
+        expire_on_commit=False,
+        bind=engine,
+    )
+
+    async with sessionmaker() as session:
         yield session
-    finally:
-        session.rollback()
-        session.close()
+        await session.rollback()
+
+    async with engine.begin() as conn:
+        await conn.run_sync(model.Base.metadata.drop_all)
 
 
 @pytest_asyncio.fixture(autouse=True, name="redis")

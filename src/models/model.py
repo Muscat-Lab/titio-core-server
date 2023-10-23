@@ -2,7 +2,9 @@ import datetime
 import uuid
 from typing import List
 
+from snowflake import SnowflakeGenerator
 from sqlalchemy import (
+    BigInteger,
     Boolean,
     Computed,
     Date,
@@ -13,13 +15,15 @@ from sqlalchemy import (
     String,
     Text,
     Time,
-    UniqueConstraint,
     Uuid,
 )
 from sqlalchemy.dialects.mysql import JSON
+from sqlalchemy.dialects.postgresql import ARRAY
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from .base import Base
+
+gen = SnowflakeGenerator(42)
 
 Base.metadata.naming_convention = {
     "ix": "%(column_0_label)s_idx",
@@ -42,13 +46,11 @@ class Area(Base):
     performance: Mapped["Performance"] = relationship(back_populates="areas")
     seats: Mapped[List["Seat"]] = relationship(back_populates="area")
 
-    latest_cursor = mapped_column(
-        String(256),
-        Computed(
-            "CONCAT(created_at, ':', id)",
-        ),
+    snowflake_id = mapped_column(
+        BigInteger,
         index=True,
         nullable=False,
+        default=lambda: next(gen),
     )
 
     @classmethod
@@ -63,6 +65,17 @@ class Area(Base):
         )
 
 
+class HotPerformance(Base):
+    __tablename__ = "hot_performances"
+
+    id = mapped_column(Uuid, primary_key=True, index=True, default=uuid.uuid4)
+    performance_id = mapped_column(ForeignKey("performances.id"), nullable=False)
+
+    performance: Mapped["Performance"] = relationship(
+        back_populates="hot", overlaps="hot_performances"
+    )
+
+
 class Performance(Base):
     __tablename__ = "performances"
 
@@ -75,35 +88,35 @@ class Performance(Base):
     pre_booking_enabled = mapped_column(Boolean, nullable=False)
     pre_booking_closed_at = mapped_column(DateTime(timezone=True), nullable=True)
     poster_image_id = mapped_column(ForeignKey("images.id"), nullable=True)
+    snowflake_id = mapped_column(
+        BigInteger,
+        index=True,
+        nullable=False,
+        default=lambda: next(gen),
+    )
+    genre_idents = mapped_column(ARRAY(String), nullable=False, default=[])
 
     areas: Mapped[List["Area"]] = relationship(back_populates="performance")
     seat_grades: Mapped[List["SeatGrade"]] = relationship(back_populates="performance")
     discounts: Mapped[List["Discount"]] = relationship(back_populates="performance")
     schedules: Mapped[List["Schedule"]] = relationship(back_populates="performance")
-    contents: Mapped[List["PerformanceContent"]] = relationship(
-        back_populates="performance"
-    )
+    content: Mapped["PerformanceContent"] = relationship(back_populates="performance")
     roles: Mapped[List["Role"]] = relationship(back_populates="performance")
     castings: Mapped[List["Casting"]] = relationship(back_populates="performance")
     poster_image: Mapped["Image"] = relationship(
         "Image",
         foreign_keys=[poster_image_id],
         backref="performances",
+        lazy=None,
     )
     like_users: Mapped[List["User"]] = relationship(
         secondary="user_performance_likes", back_populates="like_performances"
     )
-
-    latest_cursor = mapped_column(
-        String(256),
-        Computed(
-            "CONCAT(created_at, ':', id)",
-        ),
-        index=True,
-        nullable=False,
+    hot: Mapped["HotPerformance"] = relationship(
+        "HotPerformance",
+        foreign_keys=[HotPerformance.performance_id],
+        backref="hot_performances",
     )
-
-    genre_idents = mapped_column(JSON, nullable=False, default=[])
 
     @classmethod
     def create(
@@ -115,6 +128,7 @@ class Performance(Base):
         end: datetime.date,
         pre_booking_enabled: bool,
         pre_booking_closed_at: datetime.datetime | None,
+        genre_idents: list[str] | None = None,
     ) -> "Performance":
         return cls(
             title=title,
@@ -124,6 +138,7 @@ class Performance(Base):
             end=end,
             pre_booking_enabled=pre_booking_enabled,
             pre_booking_closed_at=pre_booking_closed_at,
+            genre_idents=genre_idents or [],
         )
 
     @property
@@ -138,38 +153,46 @@ class Performance(Base):
             config=get_config(), path=self.poster_image.path
         )
 
+    @property
+    def dict(self) -> dict:
+        return {
+            "id": self.id,
+            "title": self.title,
+            "running_time": self.running_time,
+            "grade": self.grade,
+            "begin": self.begin,
+            "end": self.end,
+            "pre_booking_enabled": self.pre_booking_enabled,
+            "pre_booking_closed_at": self.pre_booking_closed_at,
+            "poster_image_url": self.poster_image_url,
+            "snowflake_id": self.snowflake_id,
+        }
+
 
 class PerformanceContent(Base):
     __tablename__ = "performance_contents"
 
     id = mapped_column(Uuid, primary_key=True, index=True, default=uuid.uuid4)
     performance_id = mapped_column(ForeignKey("performances.id"), nullable=False)
-    sequence = mapped_column(Integer, nullable=False)
-    heading = mapped_column(String(256), nullable=False)
-    content = mapped_column(Text, nullable=False)
+    showtime_info = mapped_column(Text, nullable=True)
+    notice = mapped_column(Text, nullable=True)
+    introduction = mapped_column(Text, nullable=True)
+    casting_schedule = mapped_column(JSON, nullable=True)
+    discount_info = mapped_column(JSON, nullable=True)
 
-    __table_args__ = (
-        UniqueConstraint(
-            "performance_id",
-            "sequence",
-        ),
-    )
-
-    performance: Mapped["Performance"] = relationship(back_populates="contents")
+    performance: Mapped["Performance"] = relationship(back_populates="content")
 
     @classmethod
     def create(
         cls,
         performance_id: uuid.UUID,
-        sequence: int,
-        heading: str,
-        content: str,
+        notice: str | None = None,
+        introduction: str | None = None,
     ) -> "PerformanceContent":
         return cls(
             performance_id=performance_id,
-            sequence=sequence,
-            heading=heading,
-            content=content,
+            notice=notice,
+            introduction=introduction,
         )
 
 
@@ -350,7 +373,7 @@ class Seat(Base):
     row_col_cursor = mapped_column(
         Integer,
         Computed(
-            "(`row` * 10000) + `col`",
+            "(row * 10000) + col",
         ),
         index=True,
         nullable=False,
@@ -377,13 +400,11 @@ class SeatGrade(Base):
     name = mapped_column(String(30), nullable=False)
     price = mapped_column(Integer, nullable=False)
 
-    latest_cursor = mapped_column(
-        String(256),
-        Computed(
-            "CONCAT(created_at, ':', id)",
-        ),
+    snowflake_id = mapped_column(
+        BigInteger,
         index=True,
         nullable=False,
+        default=lambda: next(gen),
     )
 
     performance: Mapped["Performance"] = relationship(back_populates="seat_grades")

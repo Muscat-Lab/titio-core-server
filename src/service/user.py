@@ -24,10 +24,10 @@ class UserService:
         return await self.user_repository.save_user(user=user)
 
     async def get_user_list(self) -> list[User]:
-        return self.user_repository.get_user_list()
+        return await self.user_repository.get_user_list()
 
     async def find_user_by_id(self, user_id: UUID) -> User:
-        user = self.user_repository.find_user_by_id(user_id=user_id)
+        user = await self.user_repository.find_user_by_id(user_id=user_id)
 
         if not user:
             raise HTTPException(status_code=404, detail="User not found")
@@ -35,7 +35,7 @@ class UserService:
         return user
 
     async def find_user_by_username(self, username: str) -> User:
-        user = self.user_repository.find_user_by_username(username=username)
+        user = await self.user_repository.find_user_by_username(username=username)
 
         if not user:
             raise HTTPException(status_code=404, detail="User not found")
@@ -46,7 +46,7 @@ class UserService:
         if file is None or file.filename is None:
             raise HTTPException(status_code=400, detail="File is required")
 
-        user = self.user_repository.find_user_by_id(user_id=user_id)
+        user = await self.user_repository.find_user_by_id(user_id=user_id)
 
         if not user:
             raise HTTPException(status_code=404, detail="User not found")
@@ -63,3 +63,11 @@ class UserService:
         user.avatar_image_id = image.id
 
         return await self.s3_util.get_presigned_url_by_path(path=image.path)
+
+    async def find_user_by_email(self, email: str):
+        user = await self.user_repository.find_user_by_email(email=email)
+
+        if not user:
+            raise HTTPException(status_code=404, detail="User not found")
+
+        return user

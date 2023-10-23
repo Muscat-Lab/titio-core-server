@@ -38,9 +38,8 @@ class TestPerformanceContentRepository:
             await performance_content_repository.save_performance_content(
                 performance_content=PerformanceContent.create(
                     performance_id=performance.id,
-                    sequence=0,
-                    heading="제목",
-                    content="내용",
+                    notice="공지사항",
+                    introduction=None,
                 )
             )
         )
@@ -63,19 +62,20 @@ class TestPerformanceContentRepository:
             await performance_content_repository.save_performance_content(
                 performance_content=PerformanceContent.create(
                     performance_id=performance.id,
-                    sequence=0,
-                    heading="제목",
-                    content="내용",
+                    notice="공지사항",
+                    introduction=None,
                 )
             )
         )
 
         assert performance_content.id is not None
 
-        performance_content_list = (
-            await performance_content_repository.get_performance_content_list(
-                performance_id=performance.id
+        performance_id = performance.id
+
+        performance_content = (
+            await performance_content_repository.get_performance_content(
+                performance_id=performance_id
             )
         )
 
-        assert len(performance_content_list) != 0
+        assert performance_content is not None

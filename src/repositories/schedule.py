@@ -1,16 +1,17 @@
+import asyncio
 from datetime import date, time
 from uuid import UUID
 
 from fastapi import Depends
 from sqlalchemy import select
-from sqlalchemy.orm import Session, joinedload
+from sqlalchemy.orm import joinedload
 
 from src.database.connection import get_db
 from src.models.model import Casting, Schedule, ScheduleCasting
 
 
 class ScheduleRepository:
-    def __init__(self, session: Session = Depends(get_db)):
+    def __init__(self, session=Depends(get_db)):
         self.session = session
 
     async def find_schedule_by_date_n_time(
@@ -31,7 +32,7 @@ class ScheduleRepository:
             .where(Schedule.time == _time)
         )
 
-        return self.session.execute(query).unique().scalar_one_or_none()
+        return (await self.session.execute(query)).unique().scalar_one_or_none()
 
     async def get_date_list(
         self,
@@ -54,11 +55,11 @@ class ScheduleRepository:
             query = query.where(Schedule.date <= to_date)
 
         if cursor is not None:
-            query = query.where(Schedule.date > cursor)
+            query = query.where(Schedule.date > date.fromisoformat(cursor))
 
         query = query.order_by(Schedule.date.asc()).limit(limit)
 
-        return [_date for _date in self.session.execute(query).scalars().all()]
+        return [_date for _date in (await self.session.execute(query)).scalars().all()]
 
     async def get_time_list_by_date(
         self,
@@ -83,20 +84,22 @@ class ScheduleRepository:
             query = query.where(Schedule.time <= to_time)
 
         if cursor is not None:
-            query = query.where(Schedule.time > cursor)
+            query = query.where(Schedule.time > time.fromisoformat(cursor))
 
         query = query.order_by(Schedule.time.asc()).limit(limit)
 
-        return [_time for _time in self.session.execute(query).scalars().all()]
+        return [_time for _time in (await self.session.execute(query)).scalars().all()]
 
     async def save_schedule_list(
         self,
         schedule_list: list[Schedule],
     ) -> list[Schedule]:
         self.session.add_all(schedule_list)
-        self.session.commit()
+        await self.session.commit()
 
-        list(map(lambda obj: self.session.refresh(obj), schedule_list))
+        async with asyncio.TaskGroup() as tg:
+            for schedule in schedule_list:
+                tg.create_task(self.session.refresh(schedule))
 
         return schedule_list
 
@@ -104,7 +107,7 @@ class ScheduleRepository:
         self, schedule_casting: ScheduleCasting
     ) -> ScheduleCasting:
         self.session.add(schedule_casting)
-        self.session.commit()
-        self.session.refresh(schedule_casting)
+        await self.session.commit()
+        await self.session.refresh(schedule_casting)
 
         return schedule_casting

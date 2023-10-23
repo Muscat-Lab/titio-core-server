@@ -64,9 +64,9 @@ class TestPerformanceContentService:
     ):
         m = mocked_performance_content_repository
 
-        m.get_performance_content_list.return_value = [default_performance_content]
+        m.get_performance_content.return_value = default_performance_content
 
-        performance_content = await performance_service.get_performance_content_list(
+        performance_content = await performance_service.get_performance_content(
             default_performance_content.performance_id
         )
 

@@ -27,7 +27,7 @@ class SeatGradeRepository:
         return list(
             (
                 self.session.scalars(
-                    query.order_by(SeatGrade.latest_cursor.desc()).limit(limit)
+                    query.order_by(SeatGrade.snowflake_id.desc()).limit(limit)
                 )
             ).all()
         )

@@ -7,6 +7,7 @@ from pydantic import Field
 from src.api.request import ListRequestBase, ListResponseBase, RequestBase, ResponseBase
 from src.auth.jwt_handler import get_current_user, get_current_user_optional
 from src.models.model import Performance
+from src.schema.performance import BasePerformanceResponse
 from src.service.performance import PerformanceService
 
 router = APIRouter(prefix="/performances", tags=["performance"])
@@ -32,7 +33,64 @@ class PerformanceListResponse(ListResponseBase):
         schedule_text: str = ""
         location_text: str = ""
 
-    performances: list[Performance]
+    performances: list[BasePerformanceResponse]
+
+
+class PerformanceHotResponse(PerformanceListResponse):
+    pass
+
+
+@router.get("/hot")
+async def performance_hot_list_handler(
+    performance_service: PerformanceService = Depends(),
+    user_id: UUID | None = Depends(get_current_user_optional),
+) -> PerformanceHotResponse:
+    performances = await performance_service.get_hot_performance_list(user_id=user_id)
+
+    return PerformanceHotResponse(
+        performances=performances,
+        next_cursor=(
+            str(performances[-1].snowflake_id) if len(performances) >= 20 else None
+        ),
+    )
+
+
+class PerformanceHotCreateRequest(RequestBase):
+    performance_id: UUID
+
+
+class PerformanceHotCreateResponse(ResponseBase):
+    pass
+
+
+@router.post("/hot")
+async def performance_hot_create_handler(
+    q: PerformanceHotCreateRequest,
+    performance_service: PerformanceService = Depends(),
+    user_id: UUID = Depends(get_current_user),
+) -> PerformanceHotCreateResponse:
+    await performance_service.create_hot_performance(
+        performance_id=q.performance_id, user_id=user_id
+    )
+
+    return PerformanceHotCreateResponse()
+
+
+class PerformanceHotDeleteResponse(ResponseBase):
+    pass
+
+
+@router.delete("/hot/{performanceId}")
+async def performance_hot_delete_handler(
+    performanceId: UUID,
+    performance_service: PerformanceService = Depends(),
+    user_id: UUID = Depends(get_current_user),
+) -> PerformanceHotDeleteResponse:
+    await performance_service.delete_hot_performance(
+        performance_id=performanceId, user_id=user_id
+    )
+
+    return PerformanceHotDeleteResponse()
 
 
 @router.get("")
@@ -46,22 +104,18 @@ async def performance_list_handler(
         cursor=q.cursor,
         pre_booking_enabled=q.pre_booking_enabled,
         genre_ident=q.genre_ident,
+        user_id=user_id,
     )
 
     return PerformanceListResponse(
-        performances=[
-            PerformanceListResponse.Performance.model_validate(
-                performance, from_attributes=True
-            )
-            for performance in performances
-        ],
+        performances=performances,
         next_cursor=(
-            performances[-1].latest_cursor if len(performances) >= q.limit else None
+            str(performances[-1].snowflake_id) if len(performances) >= q.limit else None
         ),
     )
 
 
-class PerformanceGetResponse(PerformanceListResponse.Performance):
+class PerformanceGetResponse(BasePerformanceResponse):
     pass
 
 

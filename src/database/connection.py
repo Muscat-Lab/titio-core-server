@@ -1,7 +1,6 @@
 import redis.asyncio as async_redis
 from fastapi import Depends
-from sqlalchemy import Engine, create_engine
-from sqlalchemy.orm import Session, sessionmaker
+from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 
 from src.config import ConfigTemplate, get_config
 
@@ -11,15 +10,15 @@ class SqlaEngine:
         self,
         config: ConfigTemplate,
     ) -> None:
-        self._engine = create_engine(config.db_uri, logging_name="sa_logger")
+        self._engine = create_async_engine(config.db_uri, logging_name="sa_logger")
 
     @property
-    def engine(self) -> Engine:
+    def engine(self):
         return self._engine
 
     @property
-    def session(self) -> sessionmaker[Session]:
-        return sessionmaker(
+    def session(self) -> async_sessionmaker[AsyncSession]:
+        return async_sessionmaker(
             autoflush=False,
             autocommit=False,
             expire_on_commit=False,
@@ -27,7 +26,7 @@ class SqlaEngine:
         )
 
 
-def get_db(
+async def get_db(
     config: ConfigTemplate = Depends(get_config),
 ):
     session = SqlaEngine(config).session()
@@ -37,7 +36,7 @@ def get_db(
     try:
         yield session
     finally:
-        session.close()
+        await session.close()
 
 
 class Redis:

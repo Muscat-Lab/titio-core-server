@@ -1,13 +1,13 @@
 from fastapi import Depends
 from sqlalchemy import select
-from sqlalchemy.orm import Session, joinedload
+from sqlalchemy.orm import joinedload
 
 from src.database.connection import get_db
 from src.models.model import Performer
 
 
 class PerformerRepository:
-    def __init__(self, session: Session = Depends(get_db)):
+    def __init__(self, session=Depends(get_db)):
         self.session = session
 
     async def get_performer_list(
@@ -22,7 +22,7 @@ class PerformerRepository:
 
         query = query.order_by(Performer.created_at.desc()).limit(limit)
 
-        return list(self.session.execute(query).scalars().all())
+        return list((await self.session.execute(query)).scalars().all())
 
     async def get_performer_list_with_like_count(
         self,
@@ -38,11 +38,11 @@ class PerformerRepository:
 
         query = query.order_by(Performer.id.desc()).limit(limit)
 
-        return list(self.session.execute(query).unique().scalars().all())
+        return list((await self.session.execute(query)).unique().scalars().all())
 
     async def save_performer(self, performer: Performer) -> Performer:
         self.session.add(performer)
-        self.session.commit()
-        self.session.refresh(performer)
+        await self.session.commit()
+        await self.session.refresh(performer)
 
         return performer
