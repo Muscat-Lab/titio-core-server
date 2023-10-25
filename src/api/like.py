@@ -62,3 +62,12 @@ async def like_choice_bulk_create_handler(
     )
 
     return LikeChoiceBulkCreateResponse()
+
+
+@router.post("/choices/flush")
+async def like_choice_flush_handler(
+    like_service: LikeService = Depends(),
+) -> LikeChoiceBulkCreateResponse:
+    await like_service.flush_like_choice()
+
+    return LikeChoiceBulkCreateResponse()

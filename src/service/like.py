@@ -113,6 +113,9 @@ class LikeService:
 
         return all_genres
 
+    async def flush_like_choice(self):
+        await self.like_repository.flush_like_choice()
+
     async def bulk_create_like_choice(
         self, choices: list[LikeChoiceSchema], user_id: UUID
     ):
