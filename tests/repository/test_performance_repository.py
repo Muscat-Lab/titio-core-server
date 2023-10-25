@@ -150,6 +150,8 @@ class TestPerformanceRepository:
             performance_id=_performance.id
         )
 
+        assert performance is not None
+
         performance.like_users.append(user)
 
         await performance_repository.save_performance(performance)

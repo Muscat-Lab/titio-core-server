@@ -3,7 +3,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import joinedload
 
 from src.database.connection import get_db
-from src.models.model import Genre, UserGenreLike
+from src.models.model import Genre
 
 
 class GenreRepository:
@@ -44,14 +44,3 @@ class GenreRepository:
         await self.session.refresh(instance=genre)
 
         return genre
-
-    async def like(self, genre_like: UserGenreLike) -> UserGenreLike:
-        self.session.add(instance=genre_like)
-        await self.session.commit()
-        await self.session.refresh(instance=genre_like)
-
-        return genre_like
-
-    async def unlike(self, genre_like: UserGenreLike) -> None:
-        await self.session.delete(instance=genre_like)
-        await self.session.commit()

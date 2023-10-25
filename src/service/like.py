@@ -1,3 +1,5 @@
+from uuid import UUID
+
 from fastapi import Depends
 
 from src.enums.like import LikeChoiceType
@@ -6,6 +8,7 @@ from src.repositories.genre import GenreRepository
 from src.repositories.like import LikeRepository
 from src.repositories.performance import PerformanceRepository
 from src.repositories.performer import PerformerRepository
+from src.repositories.user import UserRepository
 from src.schema.like import LikeChoiceSchema
 
 FETCH_COUNT = 100
@@ -18,11 +21,13 @@ class LikeService:
         performer_repository: PerformerRepository = Depends(PerformerRepository),
         performance_repository: PerformanceRepository = Depends(PerformanceRepository),
         like_repository: LikeRepository = Depends(LikeRepository),
+        user_repository: UserRepository = Depends(UserRepository),
     ):
         self.genre_repository = genre_repository
         self.performer_repository = performer_repository
         self.performance_repository = performance_repository
         self.like_repository = like_repository
+        self.user_repository = user_repository
 
     async def get_like_choice_list(
         self, limit: int, cursor: str | None = None
@@ -37,22 +42,20 @@ class LikeService:
 
             performer_key_score: dict[str, int] = {
                 LikeChoiceSchema(
+                    id=performer.id,
                     type=LikeChoiceType.Performer,
-                    performer=LikeChoiceSchema.Performer(
-                        id=performer.id,
-                        name=performer.name,
-                        profile_image_url=performer.profile_image_url,
-                    ),
-                    genre=None,
+                    name=performer.name,
+                    profile_image_url=performer.profile_image_url,
                 ).model_dump_json(): performer.like_count
                 for performer in performer_list
             }
 
             genre_key_score: dict[str, int] = {
                 LikeChoiceSchema(
+                    id=genre.id,
                     type=LikeChoiceType.Genre,
-                    performer=None,
-                    genre=LikeChoiceSchema.Genre(id=genre.id, name=genre.name),
+                    name=genre.name,
+                    profile_image_url=None,
                 ).model_dump_json(): genre.like_count
                 for genre in genre_list
             }
@@ -109,3 +112,22 @@ class LikeService:
             all_genres.extend(genre_list)
 
         return all_genres
+
+    async def bulk_create_like_choice(
+        self, choices: list[LikeChoiceSchema], user_id: UUID
+    ):
+        await self.user_repository.like_performers(
+            performer_ids=[
+                choice.id
+                for choice in choices
+                if choice.type == LikeChoiceType.Performer
+            ],
+            user_id=user_id,
+        )
+
+        await self.user_repository.like_genres(
+            genre_ids=[
+                choice.id for choice in choices if choice.type == LikeChoiceType.Genre
+            ],
+            user_id=user_id,
+        )

@@ -3,6 +3,7 @@ from uuid import UUID
 from fastapi import APIRouter, Depends
 
 from src.api.request import ListRequestBase, ListResponseBase, RequestBase, ResponseBase
+from src.auth.jwt_handler import get_current_user
 from src.models.model import Performer
 from src.service.performer import PerformerService
 
@@ -66,3 +67,39 @@ async def performer_create_handler(
     )
 
     return PerformerCreateResponse.model_validate(performer, from_attributes=True)
+
+
+class PerformerLikeResponse(ResponseBase):
+    pass
+
+
+@router.post("/{performerId}/like")
+async def performer_like_handler(
+    performerId: UUID,
+    performer_service: PerformerService = Depends(),
+    user_id: UUID = Depends(get_current_user),
+) -> PerformerLikeResponse:
+    await performer_service.like_performer(
+        performer_id=performerId,
+        user_id=user_id,
+    )
+
+    return PerformerLikeResponse()
+
+
+class PerformerUnlikeResponse(ResponseBase):
+    pass
+
+
+@router.delete("/{performerId}/like")
+async def performer_unlike_handler(
+    performerId: UUID,
+    performer_service: PerformerService = Depends(),
+    user_id: UUID = Depends(get_current_user),
+) -> PerformerUnlikeResponse:
+    await performer_service.unlike_performer(
+        performer_id=performerId,
+        user_id=user_id,
+    )
+
+    return PerformerUnlikeResponse()
