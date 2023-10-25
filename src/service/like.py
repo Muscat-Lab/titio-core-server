@@ -9,7 +9,7 @@ from src.repositories.like import LikeRepository
 from src.repositories.performance import PerformanceRepository
 from src.repositories.performer import PerformerRepository
 from src.repositories.user import UserRepository
-from src.schema.like import LikeChoiceSchema
+from src.schema.like import LikeChoiceSchema, LikeChoiceCreateSchema
 
 FETCH_COUNT = 100
 
@@ -117,7 +117,7 @@ class LikeService:
         await self.like_repository.flush_like_choice()
 
     async def bulk_create_like_choice(
-        self, choices: list[LikeChoiceSchema], user_id: UUID
+        self, choices: list[LikeChoiceCreateSchema], user_id: UUID
     ):
         await self.user_repository.like_performers(
             performer_ids=[
