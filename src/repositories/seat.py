@@ -1,6 +1,7 @@
 from uuid import UUID
 
 from fastapi import Depends
+from sqlalchemy import select
 from sqlalchemy.orm import joinedload
 
 from src.database.connection import get_db
@@ -18,7 +19,7 @@ class SeatRepository:
         cursor: str | None = None,
     ) -> list[Seat]:
         query = (
-            self.session.query(Seat)
+            select(Seat)
             .options(joinedload(Seat.seat_grade))
             .where(Seat.area_id == area_id)
         )

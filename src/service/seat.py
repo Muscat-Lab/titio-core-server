@@ -8,8 +8,8 @@ from src.repositories.seat import SeatRepository
 class SeatService:
     def __init__(
         self,
-        area_repository=Depends(AreaRepository),
-        seat_repository=Depends(SeatRepository),
+        area_repository: AreaRepository = Depends(AreaRepository),
+        seat_repository: SeatRepository = Depends(SeatRepository),
     ):
         self.area_repository = area_repository
         self.seat_repository = seat_repository

@@ -5,7 +5,7 @@ from fastapi import APIRouter, Depends
 
 from src.api.request import ListRequestBase, ListResponseBase, RequestBase, ResponseBase
 from src.auth.jwt_handler import get_current_user
-from src.schema.like import LikeChoiceSchema, LikeChoiceCreateSchema
+from src.schema.like import LikeChoiceCreateSchema, LikeChoiceSchema
 from src.service.like import LikeService
 
 router = APIRouter(

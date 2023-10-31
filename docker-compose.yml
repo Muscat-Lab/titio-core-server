@@ -1,7 +1,7 @@
 version: "3.8"
 
 services:
-  fastapi:
+  tito:
     container_name: fastapi
     build:
       context: .
@@ -15,24 +15,9 @@ services:
       - -c
       - . .venv/bin/activate
         && uvicorn src.main:app --reload --host=0.0.0.0 --port=8000
-    depends_on:
-      - mysql
     restart: always
 
-  mysql:
-    image: mysql:8.0
-    container_name: mysql
-    environment:
-      MYSQL_ROOT_PASSWORD: root1234
-      MYSQL_DATABASE: dev
-      MYSQL_USER: user
-      MYSQL_PASSWORD: user1234
-    ports:
-      - "3306:3306"
-    volumes:
-      - mysql_data:/var/lib/mysql
-
-  postgres:
+  tito-postgres:
     image: postgres:15.4
     container_name: postgres
     environment:
@@ -44,7 +29,7 @@ services:
     volumes:
       - pg_data:/var/lib/postgresql/data
 
-  redis:
+  tito-redis:
     image: redis:6.0
     container_name: redis
     ports:
@@ -52,7 +37,7 @@ services:
     volumes:
       - redis_data:/data
 
-  s3:
+  tito-s3:
     image: minio/minio
     entrypoint: sh
     container_name: s3

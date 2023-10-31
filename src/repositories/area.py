@@ -17,23 +17,28 @@ class AreaRepository:
         limit: int,
         cursor: str | None = None,
     ) -> list[Area]:
-        query = select(Area).where(Area.performance_id == performance_id)
+        query = select(Area, Area.accessible_seats_count).where(
+            Area.performance_id == performance_id
+        )
 
         if cursor is not None:
             query = query.where(Area.created_at < cursor)
 
-        return list(
-            (
-                await self.session.scalars(
-                    query.order_by(Area.snowflake_id.desc()).limit(limit)
-                )
-            ).all()
-        )
+        result = (
+            await self.session.execute(
+                query.order_by(Area.created_at.desc()).limit(limit)
+            )
+        ).all()
+
+        for area, accessible_seats_count in result:
+            area.accessible_seats_count = accessible_seats_count
+
+        return [area for area, accessible_seats_count in result]
 
     async def find_area_by_id(self, area_id: UUID) -> Area | None:
-        return await self.session.scalars(
-            select(Area).where(Area.id == area_id)
-        ).first()
+        query = select(Area).where(Area.id == area_id)
+
+        return (await self.session.scalars(query)).first()
 
     async def save_area(self, area: Area) -> Area:
         self.session.add(instance=area)
