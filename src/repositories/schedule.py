@@ -14,6 +14,11 @@ class ScheduleRepository:
     def __init__(self, session=Depends(get_db)):
         self.session = session
 
+    async def find_schedule_by_id(self, schedule_id: UUID) -> Schedule | None:
+        query = select(Schedule).where(Schedule.id == schedule_id)
+
+        return (await self.session.execute(query)).unique().scalar_one_or_none()
+
     async def find_schedule_by_date_n_time(
         self,
         performance_id: UUID,
