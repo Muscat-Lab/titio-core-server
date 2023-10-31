@@ -75,7 +75,7 @@ class SeatSaveRequest(RequestBase):
             col=self.col,
             name=self.name,
             seat_grade_id=self.seat_grade_id,
-            is_accessible=False,
+            is_accessible=self.is_accessible,
             distance_from_stage=self.distance_from_stage,
         )
 
