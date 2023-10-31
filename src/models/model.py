@@ -6,7 +6,6 @@ from snowflake import SnowflakeGenerator
 from sqlalchemy import (
     BigInteger,
     Boolean,
-    Computed,
     Date,
     DateTime,
     Float,
@@ -21,48 +20,11 @@ from sqlalchemy.dialects.mysql import JSON
 from sqlalchemy.dialects.postgresql import ARRAY
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from .base import Base
+from .area import Area
+from .base import Base, metadata
+from .seat import Seat
 
 gen = SnowflakeGenerator(42)
-
-Base.metadata.naming_convention = {
-    "ix": "%(column_0_label)s_idx",
-    "uq": "%(table_name)s_%(column_0_name)s_key",
-    "ck": "%(table_name)s_%(constraint_name)s_check",
-    "fk": "%(table_name)s_%(column_0_name)s_fkey",
-    "pk": "%(table_name)s_pkey",
-}
-
-metadata = Base.metadata
-
-
-class Area(Base):
-    __tablename__ = "areas"
-
-    id = mapped_column(Uuid, primary_key=True, index=True, default=uuid.uuid4)
-    performance_id = mapped_column(ForeignKey("performances.id"), nullable=False)
-    title = mapped_column(String(256), nullable=False)
-
-    performance: Mapped["Performance"] = relationship(back_populates="areas")
-    seats: Mapped[List["Seat"]] = relationship(back_populates="area")
-
-    snowflake_id = mapped_column(
-        BigInteger,
-        index=True,
-        nullable=False,
-        default=lambda: next(gen),
-    )
-
-    @classmethod
-    def create(
-        cls,
-        performance_id: uuid.UUID,
-        title: str,
-    ) -> "Area":
-        return cls(
-            performance_id=performance_id,
-            title=title,
-        )
 
 
 class HotPerformance(Base):
@@ -355,43 +317,6 @@ class ScheduleCasting(Base):
         )
 
 
-class Seat(Base):
-    __tablename__ = "seats"
-
-    id = mapped_column(Uuid, primary_key=True, index=True, default=uuid.uuid4)
-    area_id = mapped_column(ForeignKey("areas.id"), nullable=False)
-    seat_grade_id = mapped_column(ForeignKey("seat_grades.id"), nullable=False)
-    x = mapped_column(Float, nullable=False)
-    y = mapped_column(Float, nullable=False)
-    row = mapped_column(Integer, nullable=False)
-    col = mapped_column(Integer, nullable=False)
-    name = mapped_column(String(30), nullable=False)
-
-    area: Mapped["Area"] = relationship(back_populates="seats")
-    seat_grade: Mapped["SeatGrade"] = relationship(back_populates="seats")
-
-    row_col_cursor = mapped_column(
-        Integer,
-        Computed(
-            "(row * 10000) + col",
-        ),
-        index=True,
-        nullable=False,
-    )
-
-    @classmethod
-    def create(cls, area_id, x, y, row, col, name, seat_grade_id) -> "Seat":
-        return cls(
-            area_id=area_id,
-            x=x,
-            y=y,
-            row=row,
-            col=col,
-            name=name,
-            seat_grade_id=seat_grade_id,
-        )
-
-
 class SeatGrade(Base):
     __tablename__ = "seat_grades"
 
@@ -550,6 +475,7 @@ class UserGenreLike(Base):
 
 
 __all__ = [
+    "metadata",
     "User",
     "Area",
     "Performance",

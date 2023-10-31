@@ -9,7 +9,7 @@ from src.repositories.like import LikeRepository
 from src.repositories.performance import PerformanceRepository
 from src.repositories.performer import PerformerRepository
 from src.repositories.user import UserRepository
-from src.schema.like import LikeChoiceSchema, LikeChoiceCreateSchema
+from src.schema.like import LikeChoiceCreateSchema, LikeChoiceSchema
 
 FETCH_COUNT = 100
 

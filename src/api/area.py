@@ -17,6 +17,7 @@ class AreaListResponse(ListResponseBase):
     class Area(ResponseBase):
         id: UUID
         title: str
+        accessible_seats_info: str | None = None
 
     areas: list[Area]
 
@@ -44,18 +45,21 @@ async def area_list_handler(
 class AreaSaveRequest(RequestBase):
     performance_id: UUID
     title: str
+    accessible_seats_info: str | None = None
 
     @property
     def model(self) -> Area:
         return Area.create(
             performance_id=self.performance_id,
             title=self.title,
+            accessible_seats_info=self.accessible_seats_info,
         )
 
 
 class AreaSaveResponse(ResponseBase):
     performance_id: UUID
     title: str
+    accessible_seats_info: str | None = None
 
 
 @router.post("")

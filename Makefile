@@ -4,10 +4,10 @@ all:
 
 .PHONY: format
 format:
-	docker-compose exec fastapi /bin/bash -c "poetry run isort ."
-	docker-compose exec fastapi /bin/bash -c "poetry run black . --experimental-string-processing"
-	docker-compose exec fastapi /bin/bash -c "poetry run ruff check ."
-	docker-compose exec fastapi /bin/bash -c "poetry run mypy ."
+	poetry run isort ./src ./tests
+	poetry run black ./src ./tests --experimental-string-processing
+	poetry run ruff check ./src ./tests --fix
+	poetry run mypy ./src ./tests
 
 
 .PHONY: migration_init

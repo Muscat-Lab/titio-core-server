@@ -29,12 +29,10 @@ class SeatListResponse(ListResponseBase):
         col: int
         name: str
         seat_grade: SeatGrade
+        is_accessible: bool
+        distance_from_stage: float | None = None
 
     seats: list[Seat]
-
-
-# f4f9678d-9d43-4145-bb28-b62c823ffd97
-# 5ae53aa5-fceb-4cd0-ba27-3d5cfd3d72f6
 
 
 @router.get("")
@@ -64,6 +62,8 @@ class SeatSaveRequest(RequestBase):
     col: int = Field(ge=1)
     name: str = Field(max_length=30)
     seat_grade_id: UUID
+    is_accessible: bool = False
+    distance_from_stage: float | None = None
 
     @property
     def model(self) -> Seat:
@@ -75,6 +75,8 @@ class SeatSaveRequest(RequestBase):
             col=self.col,
             name=self.name,
             seat_grade_id=self.seat_grade_id,
+            is_accessible=self.is_accessible,
+            distance_from_stage=self.distance_from_stage,
         )
 
 
@@ -86,6 +88,8 @@ class SeatSaveResponse(ResponseBase):
     col: int
     name: str
     seat_grade_id: UUID
+    is_accessible: bool
+    distance_from_stage: float | None = None
 
 
 @router.post("")
