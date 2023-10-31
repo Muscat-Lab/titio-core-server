@@ -12,6 +12,16 @@ class SeatRepository:
     def __init__(self, session=Depends(get_db)):
         self.session = session
 
+    async def find_seat_by_id(self, seat_id: UUID) -> Seat | None:
+        query = select(Seat).where(Seat.id == seat_id)
+
+        return (await self.session.execute(query)).unique().scalar_one_or_none()
+
+    async def get_seat_list_by_seat_ids(self, seat_ids: list[UUID]) -> list[Seat]:
+        query = select(Seat).where(Seat.id.in_(seat_ids))
+
+        return list((await self.session.execute(query)).scalars().all())
+
     async def get_seat_list(
         self,
         area_id: UUID,

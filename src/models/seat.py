@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import typing
 import uuid
+from typing import List
 
 from sqlalchemy import Boolean, Computed, Float, ForeignKey, Integer, String, Uuid
 from sqlalchemy.orm import Mapped, mapped_column, relationship
@@ -9,7 +10,7 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from .base import Base
 
 if typing.TYPE_CHECKING:
-    from .model import Area, SeatGrade
+    from .model import Area, PreBooking, SeatGrade
 
 
 class Seat(Base):
@@ -31,6 +32,10 @@ class Seat(Base):
         back_populates="seats",
     )
     seat_grade: Mapped["SeatGrade"] = relationship(back_populates="seats")
+    pre_bookings: Mapped[List["PreBooking"]] = relationship(
+        secondary="pre_booking_seat_association",
+        back_populates="seats",
+    )
 
     row_col_cursor = mapped_column(
         Integer,
@@ -40,6 +45,10 @@ class Seat(Base):
         index=True,
         nullable=False,
     )
+
+    @property
+    def price(self) -> int:
+        return self.seat_grade.price
 
     @classmethod
     def create(

@@ -22,6 +22,7 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from .area import Area
 from .base import Base, metadata
+from .pre_booking import PreBooking
 from .seat import Seat
 
 gen = SnowflakeGenerator(42)
@@ -78,6 +79,10 @@ class Performance(Base):
         "HotPerformance",
         foreign_keys=[HotPerformance.performance_id],
         backref="hot_performances",
+    )
+
+    pre_bookings: Mapped[List["PreBooking"]] = relationship(
+        back_populates="performance",
     )
 
     @classmethod
@@ -281,6 +286,10 @@ class Schedule(Base):
     castings: Mapped[List["ScheduleCasting"]] = relationship(back_populates="schedule")
     performance: Mapped["Performance"] = relationship(back_populates="schedules")
 
+    pre_bookings: Mapped[List["PreBooking"]] = relationship(
+        back_populates="schedule",
+    )
+
     @classmethod
     def create(
         cls,
@@ -394,6 +403,10 @@ class User(Base):
         secondary="user_genre_likes", back_populates="users"
     )
 
+    pre_bookings: Mapped[List["PreBooking"]] = relationship(
+        back_populates="user",
+    )
+
     @classmethod
     def create(cls, email: str, password: str, username: str | None = None) -> "User":
         if username is None:
@@ -490,4 +503,5 @@ __all__ = [
     "Casting",
     "ScheduleCasting",
     "Location",
+    "PreBooking",
 ]
