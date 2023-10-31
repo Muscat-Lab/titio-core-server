@@ -3,7 +3,8 @@ from uuid import UUID
 from fastapi import APIRouter, Depends
 
 from src.api.request import ListRequestBase, ListResponseBase, ResponseBase
-from src.models.model import Genre
+from src.auth.jwt_handler import get_current_user
+from src.service.genre import GenreService
 
 router = APIRouter(
     prefix="/genre",
@@ -27,39 +28,12 @@ class GenreListResponse(ListResponseBase):
 @router.get("")
 async def genre_list_handler(
     q: GenreListRequest = Depends(),
+    genre_service: GenreService = Depends(),
 ) -> GenreListResponse:
-    genres = [
-        Genre(
-            id=UUID("1d839208-6f3c-4740-8347-72e665f35b2a"),
-            ident="romantic",
-            name="로맨틱",
-        ),
-        Genre(
-            id=UUID("9f0c69c4-7359-4102-9b7a-17b8eb374dde"),
-            ident="pop",
-            name="팝",
-        ),
-        Genre(
-            id=UUID("7b62c3c7-91ff-4e39-acfb-9d7be2604d08"),
-            ident="comedy",
-            name="코미디",
-        ),
-        Genre(
-            id=UUID("5817c863-a803-4612-a741-6866810140a3"),
-            ident="creative",
-            name="창작",
-        ),
-        Genre(
-            id=UUID("df1ce3a8-4b67-44c0-917d-4bc7bcac0009"),
-            ident="original",
-            name="오리지널",
-        ),
-        Genre(
-            id=UUID("8051b523-917b-4cd1-85a2-b54e5e534721"),
-            ident="in-korea",
-            name="내한공연",
-        ),
-    ]
+    genres = await genre_service.get_genre_list(
+        limit=q.limit,
+        cursor=q.cursor,
+    )
 
     return GenreListResponse(
         genres=[
@@ -72,3 +46,37 @@ async def genre_list_handler(
         ],
         next_cursor=None,
     )
+
+
+class GenreLikeResponse(ResponseBase):
+    pass
+
+
+@router.post("{genreId}/like")
+async def genre_like_handler(
+    genreId: UUID,
+    genre_service: GenreService = Depends(),
+    user_id: UUID = Depends(get_current_user),
+) -> GenreLikeResponse:
+    await genre_service.like_genre(
+        genre_id=genreId,
+        user_id=user_id,
+    )
+    return GenreLikeResponse()
+
+
+class GenreUnlikeResponse(ResponseBase):
+    pass
+
+
+@router.delete("{genreId}/like")
+async def genre_unlike_handler(
+    genreId: UUID,
+    genre_service: GenreService = Depends(),
+    user_id: UUID = Depends(get_current_user),
+) -> GenreUnlikeResponse:
+    await genre_service.unlike_genre(
+        genre_id=genreId,
+        user_id=user_id,
+    )
+    return GenreUnlikeResponse()

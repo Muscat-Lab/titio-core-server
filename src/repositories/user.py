@@ -1,10 +1,10 @@
 from uuid import UUID
 
 from fastapi import Depends
-from sqlalchemy import select
+from sqlalchemy import delete, select
 
 from src.database.connection import get_db
-from src.models.model import User, UserPerformerLike
+from src.models.model import User, UserGenreLike, UserPerformerLike
 
 
 class UserRepository:
@@ -61,6 +61,37 @@ class UserRepository:
                 )
             )
 
+        await self.session.commit()
+
+    async def unlike_performer(self, performer_id: UUID, user_id: UUID) -> None:
+        query = (
+            delete(UserPerformerLike)
+            .where(UserPerformerLike.user_id == user_id)
+            .where(UserPerformerLike.performer_id == performer_id)
+        )
+
+        await self.session.execute(query)
+        await self.session.commit()
+
+    async def like_genres(self, genre_ids: list[UUID], user_id: UUID) -> None:
+        for genre_id in genre_ids:
+            self.session.add(
+                instance=UserGenreLike(
+                    user_id=user_id,
+                    genre_id=genre_id,
+                )
+            )
+
+        await self.session.commit()
+
+    async def unlike_genre(self, genre_id: UUID, user_id: UUID) -> None:
+        query = (
+            delete(UserGenreLike)
+            .where(UserGenreLike.user_id == user_id)
+            .where(UserGenreLike.genre_id == genre_id)
+        )
+
+        await self.session.execute(query)
         await self.session.commit()
 
     async def get_like_performance_list(

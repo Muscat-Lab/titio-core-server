@@ -24,3 +24,6 @@ class LikeRepository:
         return await self.redis.zrevrange(
             self.LIKE_CHOICE_KEY, start=int(cursor), end=int(cursor) + limit - 1
         )
+
+    async def flush_like_choice(self) -> None:
+        await self.redis.delete(self.LIKE_CHOICE_KEY)
