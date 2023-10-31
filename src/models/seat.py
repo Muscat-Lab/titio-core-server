@@ -8,6 +8,7 @@ from sqlalchemy import Boolean, Computed, Float, ForeignKey, Integer, String, Uu
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from .base import Base
+from .association_tables import PreBookingSeatAssociation
 
 if typing.TYPE_CHECKING:
     from .model import Area, PreBooking, SeatGrade
@@ -33,7 +34,7 @@ class Seat(Base):
     )
     seat_grade: Mapped["SeatGrade"] = relationship(back_populates="seats")
     pre_bookings: Mapped[List["PreBooking"]] = relationship(
-        secondary="pre_booking_seat_association",
+        secondary=PreBookingSeatAssociation.__tablename__,
         back_populates="seats",
     )
 
